@@ -1,0 +1,19 @@
+{
+  "$id": "spa-sample-url",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "title": "Name" },
+    "role": {
+      "type": "string",
+      "title": "Role",
+      "enum": ["user", "admin"],
+      "x-enumNames": ["User", "Administrator"]
+    },
+    "tags": {
+      "type": "array",
+      "title": "Tags",
+      "items": { "type": "string", "title": "Tag" }
+    }
+  },
+  "required": ["name"]
+}

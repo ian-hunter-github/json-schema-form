@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>JSF SPA (No Build Tools)</title>
+    <style>
+      :root {
+        --jsf-error-bg:#ffe6e6; --jsf-dirty-bg:#fff9db; --jsf-label-color:#333;
+        --jsf-input-border:#ccc; --jsf-radius:8px; --jsf-spacing-sm:6px;
+        --jsf-spacing-md:10px; --jsf-spacing-lg:16px; --jsf-font-size-sm:12px;
+        --jsf-font-size-md:14px; --jsf-font-size-lg:16px;
+      }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
+      .jsf-field { margin-bottom: var(--jsf-spacing-lg); }
+      .jsf-label { display:block; margin-bottom: var(--jsf-spacing-sm); font-weight: 600; }
+      .jsf-input, .jsf-select { width:100%; padding:8px; border:1px solid var(--jsf-input-border); border-radius: var(--jsf-radius); }
+      .jsf-error { color:#b00020; font-size:12px; margin-top:4px; }
+      .is-error { background: var(--jsf-error-bg); padding:6px; border-radius: var(--jsf-radius); }
+    </style>
+  </head>
+  <body>
+    <h1>JSON Schema Form (SPA)</h1>
+    <p>This demo includes (1) a nested object (<code>contact</code>), (2) an enum (<code>priority</code>), and (3) a primitive array (<code>tags</code>). Submitting shows the entered data in a dialog.</p>
+    <div id="mount"></div>
+
+    <!-- IIFE bundle exposes window.JSFVanilla -->
+    <script src="../../packages/jsf-vanilla/dist/browser.global.js"></script>
+    <script type="module">
+      function getParams() {
+        const p = new URLSearchParams(location.search);
+        return {
+          schema: p.get("schema") ? JSON.parse(p.get("schema")) : null,
+          schema_url: p.get("schema_url"),
+          debug: p.get("debug") === "true"
+        };
+      }
+
+      // Default schema: nested object, enum, primitive array
+      const DEFAULT_SCHEMA = {
+        $id: "spa-demo",
+        type: "object",
+        properties: {
+          title: { type: "string", title: "Title" },
+          contact: {
+            type: "object",
+            title: "Contact",
+            properties: {
+              email: { type: "string", format: "email", title: "Email" },
+              phone: { type: "string", title: "Phone" }
+            },
+            required: ["email"]
+          },
+          priority: {
+            type: "integer",
+            title: "Priority",
+            enum: [1, 2, 3],
+            "x-enumNames": ["Low", "Medium", "High"]
+          },
+          tags: {
+            type: "array",
+            title: "Tags",
+            items: { type: "string", title: "Tag" }
+          }
+        },
+        required: ["title", "priority"]
+      };
+
+      async function loadSchema() {
+        const params = getParams();
+        if (params.schema) return params.schema;
+        if (params.schema_url) {
+          const res = await fetch(params.schema_url, { cache: "no-store" });
+          return await res.json();
+        }
+        return DEFAULT_SCHEMA;
+      }
+
+      (async () => {
+        const schema = await loadSchema();
+        if (!window.JSFVanilla) {
+          console.error("JSFVanilla global not found. Check script path to browser.global.js");
+          return;
+        }
+        const mount = document.getElementById("mount");
+        const handle = window.JSFVanilla.renderJsonSchemaForm(mount, { schema });
+
+        // Show entered data on submit
+        mount.addEventListener("jsf-submit", (e) => {
+          const data = e.detail ?? handle.getData?.();
+          alert("Submitted data:\\n\\n" + JSON.stringify(data, null, 2));
+        });
+
+        // Optional: log changes
+        // mount.addEventListener("jsf-change", (e) => console.log("change", e.detail));
+        window.handle = handle;
+      })();
+    </script>
+  </body>
+</html>

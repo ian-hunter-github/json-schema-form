@@ -1,0 +1,13 @@
+* text=auto eol=lf
+
+# Mark built artifacts as generated
+packages/*/dist/* linguist-generated=true
+examples/react/dist/* linguist-generated=true
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary

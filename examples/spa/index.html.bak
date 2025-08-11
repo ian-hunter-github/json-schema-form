@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>JSF SPA (No Build Tools)</title>
+    <style>
+      :root {
+        --jsf-error-bg:#ffe6e6; --jsf-dirty-bg:#fff9db; --jsf-label-color:#333;
+        --jsf-input-border:#ccc; --jsf-radius:8px; --jsf-spacing-sm:6px;
+        --jsf-spacing-md:10px; --jsf-spacing-lg:16px; --jsf-font-size-sm:12px;
+        --jsf-font-size-md:14px; --jsf-font-size-lg:16px;
+      }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
+      .jsf-field { margin-bottom: var(--jsf-spacing-lg); }
+      .jsf-label { display:block; margin-bottom: var(--jsf-spacing-sm); font-weight: 600; }
+      .jsf-input, .jsf-select { width:100%; padding:8px; border:1px solid var(--jsf-input-border); border-radius: var(--jsf-radius); }
+      .jsf-error { color:#b00020; font-size:12px; margin-top:4px; }
+      .is-error { background: var(--jsf-error-bg); padding:6px; border-radius: var(--jsf-radius); }
+      .examples { background: #f8fafc; border: 1px solid #e5e7eb; padding: 12px; border-radius: 8px; margin-bottom: 16px; }
+      .examples code { background: #eef2f7; padding: 2px 4px; border-radius: 4px; }
+      pre { white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <h1>JSON Schema Form (SPA)</h1>
+
+    <div class="examples">
+      <strong>Examples:</strong>
+      <ul>
+        <li><a id="lnk-default" href="#">Use default built-in schema</a></li>
+        <li><a id="lnk-inline" href="#">Use inline <code>?schema=</code> override</a></li>
+        <li><a id="lnk-url" href="#">Use <code>?schema_url=</code> (local sample-schema.json)</a></li>
+      </ul>
+      <small>Tip: Add <code>?debug=true</code> to log lifecycle and show payloads on submit.</small>
+    </div>
+
+    <p>Demo includes: nested object (<code>contact.address</code>), top-level <code>oneOf</code> (<code>profile</code>), nested <code>oneOf</code> (<code>contact.address</code>), enum (<code>priority</code>), and a primitive array (<code>tags</code>).</p>
+
+    <div id="mount"></div>
+
+    <script src="../../packages/jsf-vanilla/dist/browser.global.js"></script>
+    <script type="module">
+      // Default schema with top-level and nested oneOf
+      const DEFAULT_SCHEMA = {
+        $id: "spa-demo",
+        type: "object",
+        properties: {
+          title: { type: "string", title: "Title" },
+
+          // Top-level oneOf: profile
+          profile: {
+            title: "Profile",
+            oneOf: [
+              {
+                title: "Person",
+                type: "object",
+                properties: {
+                  kind: { const: "person", title: "Kind" },
+                  first: { type: "string", title: "First name" },
+                  last: { type: "string", title: "Last name" }
+                },
+                required: ["kind","first","last"]
+              },
+              {
+                title: "Company",
+                type: "object",
+                properties: {
+                  kind: { const: "company", title: "Kind" },
+                  company: { type: "string", title: "Company name" }
+                },
+                required: ["kind","company"]
+              }
+            ],
+            discriminator: { propertyName: "kind" }
+          },
+
+          contact: {
+            type: "object",
+            title: "Contact",
+            properties: {
+              email: { type: "string", format: "email", title: "Email" },
+              phone: { type: "string", title: "Phone" },
+
+              // Nested oneOf: address
+              address: {
+                title: "Address",
+                oneOf: [
+                  {
+                    title: "Domestic (UK)",
+                    type: "object",
+                    properties: {
+                      type: { const: "domestic", title: "Type" },
+                      street: { type: "string", title: "Street" },
+                      city: { type: "string", title: "City" },
+                      postalCode: { type: "string", title: "Postcode" }
+                    },
+                    required: ["type","street","city","postalCode"]
+                  },
+                  {
+                    title: "International",
+                    type: "object",
+                    properties: {
+                      type: { const: "international", title: "Type" },
+                      street: { type: "string", title: "Street" },
+                      city: { type: "string", title: "City" },
+                      country: { type: "string", title: "Country" }
+                    },
+                    required: ["type","street","city","country"]
+                  }
+                ],
+                discriminator: { propertyName: "type" }
+              }
+            },
+            required: ["email"]
+          },
+
+          priority: {
+            type: "integer",
+            title: "Priority",
+            enum: [1, 2, 3],
+            "x-enumNames": ["Low", "Medium", "High"]
+          },
+
+          tags: {
+            type: "array",
+            title: "Tags",
+            items: { type: "string", title: "Tag" }
+          }
+        },
+        required: ["title", "priority"]
+      };
+
+      // Inline override (small)
+      const INLINE_OVERRIDE = {
+        $id: "spa-inline",
+        type: "object",
+        properties: {
+          name: { type: "string", title: "Name" },
+          mode: {
+            title: "Mode",
+            oneOf: [
+              { title: "Basic", type: "object", properties: { kind: { const: "basic" }, enabled: { type: "boolean", title: "Enabled" } }, required: ["kind"] },
+              { title: "Advanced", type: "object", properties: { kind: { const: "advanced" }, level: { type: "integer", title: "Level" } }, required: ["kind","level"] }
+            ],
+            discriminator: { propertyName: "kind" }
+          }
+        },
+        required: ["name"]
+      };
+
+      function enc(obj) { return encodeURIComponent(JSON.stringify(obj)); }
+
+      const baseHref = location.href.split("?")[0];
+      document.getElementById("lnk-default").href = baseHref;
+      document.getElementById("lnk-inline").href = baseHref + "?schema=" + enc(INLINE_OVERRIDE);
+      document.getElementById("lnk-url").href = baseHref + "?schema_url=" + encodeURIComponent("./sample-schema.json");
+
+      function getParams() {
+        const p = new URLSearchParams(location.search);
+        return {
+          schema: p.get("schema") ? JSON.parse(p.get("schema")) : null,
+          schema_url: p.get("schema_url"),
+          debug: p.get("debug") === "true"
+        };
+      }
+
+      async function loadSchema() {
+        const params = getParams();
+        if (params.schema) return params.schema;
+        if (params.schema_url) {
+          try {
+            const res = await fetch(params.schema_url, { cache: "no-store" });
+            if (!res.ok) throw new Error(res.status + " " + res.statusText);
+            return await res.json();
+          } catch (e) {
+            alert("Failed to fetch schema_url. If opening this file via file://, your browser may block local fetches.\\n\\nTip: run a local server:\\n  npx http-server examples/spa -p 8080\\nThen open:\\n  http://localhost:8080/index.html?schema_url=sample-schema.json");
+            throw e;
+          }
+        }
+        return DEFAULT_SCHEMA;
+      }
+
+      (async () => {
+        const schema = await loadSchema();
+        const mount = document.getElementById("mount");
+        if (!window.JSFVanilla) { console.error("JSFVanilla global not found"); return; }
+        const handle = window.JSFVanilla.renderJsonSchemaForm(mount, { schema });
+
+        // Submit dialog
+        mount.addEventListener("jsf-submit", (e) => {
+          const data = e.detail ?? handle.getData?.();
+          alert("Submitted data:\\n\\n" + JSON.stringify(data, null, 2));
+        });
+
+        // Expose for console
+        window.handle = handle;
+      })();
+    </script>
+  </body>
+</html>

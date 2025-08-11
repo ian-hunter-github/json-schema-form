@@ -1,0 +1,27 @@
+{
+  "name": "json-schema-form-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build:core": "npm --workspace @totnesdev/jsf-core run build",
+    "build:react": "npm --workspace @totnesdev/jsf-react run build",
+    "build:vanilla": "npm --workspace @totnesdev/jsf-vanilla run build",
+    "build:webc": "npm --workspace @totnesdev/jsf-webc run build",
+    "build:examples": "npm --workspace examples/react run build",
+    "build": "npm run build:core && npm run build:react && npm run build:vanilla && npm run build:webc && npm run build:examples",
+    "dev:react": "npm --workspace examples/react run dev",
+    "clean": "rimraf packages/*/dist"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.5.4",
+    "@types/node": "^20.14.12",
+    "vitest": "^2.0.5",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0"
+  }
+}

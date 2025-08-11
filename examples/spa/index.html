@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>JSON Schema Form — SPA Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!-- Theme via CSS variables -->
+  <style>
+    :root{
+      --jsf-error-bg:#ffe6e6;
+      --jsf-dirty-bg:#fff7cc;
+      --jsf-label-color:#111;
+      --jsf-input-border:#d4d4d8;
+      --jsf-radius:8px;
+      --jsf-spacing-sm:6px;
+      --jsf-spacing-md:10px;
+      --jsf-spacing-lg:14px;
+      --jsf-font-size-sm:12px;
+      --jsf-font-size-md:14px;
+      --jsf-font-size-lg:16px;
+    }
+    body{ font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding:24px; color:#0b0b0c; }
+    h1{ margin:0 0 8px 0; font-size:22px; }
+    .meta{ color:#555; margin-bottom:16px; }
+    .bar{ display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+    .bar .pill{ padding:4px 8px; border:1px solid #e5e7eb; border-radius:999px; background:#fafafa; font-size:12px; }
+    .container{ display:grid; grid-template-columns: 1fr; gap:16px; }
+    .card{ border:1px solid #e5e7eb; border-radius:12px; padding:16px; background:#fff; }
+    .card h2{ margin:0 0 12px 0; font-size:16px; }
+    .hint{ color:#6b7280; font-size:12px; }
+    .footer{ margin-top:16px; color:#6b7280; font-size:12px; }
+
+    /* Minimal adapter styles (classNamePrefix = jsf-) */
+    .jsf-form{ display:grid; gap:12px; }
+    .jsf-field{ padding:8px; border:1px solid var(--jsf-input-border); border-radius:var(--jsf-radius); background:#fff; }
+    .jsf-field.is-error{ background:var(--jsf-error-bg); }
+    .jsf-label{ display:block; margin-bottom:6px; font-weight:600; color:var(--jsf-label-color); }
+    .jsf-input, .jsf-select{ width:100%; padding:8px; border:1px solid var(--jsf-input-border); border-radius:8px; font:inherit; }
+    .jsf-error{ margin-top:6px; color:#b91c1c; font-size:12px; }
+    fieldset.jsf-object{ border:1px dashed #e5e7eb; border-radius:10px; padding:10px; }
+    fieldset.jsf-object > legend.jsf-label{ padding:0 6px; }
+    .actions{ display:flex; gap:8px; margin-top:10px; }
+
+    /* Debug modal */
+    .dbg-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .dbg{ width:min(840px,90vw); max-height:80vh; overflow:auto; background:#111; color:#eee; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.3); }
+    .dbg header{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid #333; }
+    .dbg pre{ margin:0; padding:12px; font-size:12px; white-space:pre-wrap; word-break:break-word;}
+    .dbg button{ background:#e5e7eb; border:0; padding:6px 10px; border-radius:8px; cursor:pointer; }
+    .dbg .muted{ color:#9ca3af; font-size:12px; }
+
+    /* add to the <style> block */
+    [data-field-name="profile.kind"],
+    [data-field-name="contact.address.type"] { display: none; }
+
+  </style>
+</head>
+<body>
+  <h1>JSON Schema Form — SPA Demo</h1>
+  <div class="meta">Open with <code>?schema=</code> or <code>?schema_url=</code>. Optional: <code>?debug=1</code>, <code>?callback_url=</code>, <code>?callback_triggers=onChange,onSubmit</code>, <code>?callback_debounce=400</code>, <code>?callback_auth=Bearer%20TOKEN</code>.</div>
+
+  <div class="bar">
+    <span class="pill" id="pill-schema">schema: default</span>
+    <span class="pill" id="pill-debug">debug: off</span>
+    <span class="pill" id="pill-triggers">triggers: onSubmit</span>
+    <span class="pill" id="pill-debounce">debounce: 400ms</span>
+    <span class="pill" id="pill-callback">callback: none</span>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Form</h2>
+      <div id="app"></div>
+      <div class="footer hint">Tip: for <code>?schema_url=</code> use HTTP (not <code>file://</code>). Try: <code>npx http-server examples/spa -p 8080</code></div>
+    </div>
+  </div>
+
+  <!-- IIFE bundle produced by jsf-vanilla build -->
+  <script src="../../packages/jsf-vanilla/dist/browser.global.js"></script>
+  <script>
+    (function(){
+      if(!window.JSFVanilla || !JSFVanilla.renderJsonSchemaForm){
+        document.getElementById('app').innerHTML =
+          '<div class="hint">Could not load <code>browser.global.js</code>. Build jsf-vanilla or correct the path.</div>';
+        return;
+      }
+
+      // --- Query params ---
+      const qp = new URLSearchParams(location.search);
+      const truthy = v => v === '1' || v === 'true' || v === 'yes';
+      const params = {
+        schema: qp.get('schema'),
+        schema_url: qp.get('schema_url'),
+        debug: truthy(qp.get('debug') || ''),
+        callback_url: qp.get('callback_url') || '',
+        callback_triggers: (qp.get('callback_triggers') || 'onSubmit').split(',').map(s=>s.trim()).filter(Boolean),
+        callback_debounce: Number(qp.get('callback_debounce') || '400'),
+        callback_auth: qp.get('callback_auth') || ''
+      };
+
+      // --- UI pills ---
+      document.getElementById('pill-debug').textContent = 'debug: ' + (params.debug ? 'on' : 'off');
+      document.getElementById('pill-triggers').textContent = 'triggers: ' + params.callback_triggers.join(',');
+      document.getElementById('pill-debounce').textContent = 'debounce: ' + params.callback_debounce + 'ms';
+      document.getElementById('pill-callback').textContent = 'callback: ' + (params.callback_url || 'none');
+
+      // --- Default schema (covers nested object, enum, primitive array, array-of-objects, top-level & nested oneOf, additionalProperties) ---
+      const defaultSchema = {
+        $id: "spa-demo",
+        type: "object",
+        properties: {
+          title: { type: "string", title: "Title" },
+
+          profile: {
+            title: "Profile",
+            oneOf: [
+              { title: "Person", type: "object",
+                properties: { kind: { const: "person" }, first: { type: "string", title: "First Name" }, last: { type: "string", title: "Last name" } },
+                required: ["kind","first","last"]
+              },
+              { title: "Company", type: "object",
+                properties: { kind: { const: "company" }, company: { type: "string" } },
+                required: ["kind","company"]
+              }
+            ],
+            discriminator: { propertyName: "kind" }
+          },
+
+          contact: {
+            type: "object", title: "Contact",
+            properties: {
+              email: { type: "string", format: "email", title: "Email" },
+              phone: { type: "string", title: "Phone" },
+              person: {
+                type: "object", title: "Person details",
+                properties: {
+                  nickname: { type: "string", title: "Nickname" }
+                }
+              },
+              address: {
+                title: "Address",
+                oneOf: [
+                  { title: "Domestic (UK)", type: "object",
+                    properties: {
+                      type: { const: "domestic" },
+                      street: { type: "string" },
+                      city: { type: "string" },
+                      postalCode: { type: "string" }
+                    },
+                    required: ["type","street","city","postalCode"]
+                  },
+                  { title: "International", type: "object",
+                    properties: {
+                      type: { const: "international" },
+                      street: { type: "string" },
+                      city: { type: "string" },
+                      country: { type: "string" }
+                    },
+                    required: ["type","street","city","country"]
+                  }
+                ],
+                discriminator: { propertyName: "type" }
+              }
+            },
+            required: ["email"]
+          },
+
+          priority: {
+            type: "integer", title: "Priority",
+            enum: [1,2,3], "x-enumNames": ["Low","Medium","High"]
+          },
+
+          tags: { type: "array", title: "Tags", items: { type: "string", title: "Tag" } },
+
+          lineItems: {
+            type: "array", title: "Line items",
+            items: {
+              type: "object", title: "Item",
+              properties: {
+                sku:   { type: "string",  title: "SKU" },
+                qty:   { type: "integer", title: "Qty", minimum: 1, default: 1 },
+                price: { type: "number",  title: "Price" }
+              },
+              required: ["sku","qty"]
+            }
+          },
+
+          metadata: { type: "object", title: "Metadata", properties: {}, additionalProperties: { type: "string", title: "Value" } }
+        },
+        required: ["title","priority"]
+      };
+
+      // --- Debug modal (for ?debug=1) ---
+      const overlay = document.createElement('div');
+      overlay.className = 'dbg-overlay';
+      overlay.innerHTML = `
+        <div class="dbg" role="dialog" aria-modal="true" aria-label="Debug output">
+          <header>
+            <strong>Debug output</strong>
+            <div>
+              <span class="muted">When debug is on, payloads are shown here instead of POSTing.</span>
+              <button id="dbg-close">Close</button>
+            </div>
+          </header>
+          <pre id="dbg-pre"></pre>
+        </div>`;
+      document.body.appendChild(overlay);
+      document.getElementById('dbg-close').onclick = () => overlay.style.display = 'none';
+      function showDebug(obj){
+        document.getElementById('dbg-pre').textContent = JSON.stringify(obj, null, 2);
+        overlay.style.display = 'flex';
+      }
+
+      // --- Load schema from URL param, fallback to default ---
+      async function resolveSchema(){
+        if (params.schema) {
+          document.getElementById('pill-schema').textContent = 'schema: ?schema';
+          try { return JSON.parse(params.schema); }
+          catch (e) { alert('Failed to parse ?schema JSON: ' + e.message); return defaultSchema; }
+        }
+        if (params.schema_url) {
+          document.getElementById('pill-schema').textContent = 'schema: ' + params.schema_url;
+          try {
+            const res = await fetch(params.schema_url, { credentials: 'omit' });
+            if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+            return await res.json();
+          } catch (e) {
+            alert('Failed to fetch ?schema_url: ' + e.message + '\\nIf using file://, please serve over http://');
+            return defaultSchema;
+          }
+        }
+        document.getElementById('pill-schema').textContent = 'schema: default';
+        return defaultSchema;
+      }
+
+      // --- Debounce utility ---
+      function makeDebounce(ms, fn){
+        let t = null;
+        return function(...args){
+          if (t) clearTimeout(t);
+          t = setTimeout(()=>{ t=null; fn.apply(this, args); }, ms);
+        };
+      }
+
+      // --- Callback sender (or debug modal) ---
+      async function sendPayload(trigger, ctx){
+        const payload = {
+          trigger,
+          ts: Date.now(),
+          valid: ctx.valid,
+          errors: ctx.errors,
+          data: ctx.data,
+          source: 'spa'
+        };
+        if (params.debug || !params.callback_url){
+          showDebug(payload);
+          return;
+        }
+        try{
+          const res = await fetch(params.callback_url, {
+            method: 'POST',
+            headers: Object.assign({
+              'Content-Type': 'application/json'
+            }, params.callback_auth ? { 'Authorization': params.callback_auth } : {}),
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) {
+            const text = await res.text().catch(()=> '');
+            showDebug({ error: 'Callback POST failed', status: res.status, body: text, payload });
+          }
+        }catch(err){
+          showDebug({ error: String(err), payload });
+        }
+      }
+
+      (async () => {
+        const schema = await resolveSchema();
+
+        let lastValidate = { valid:false, errors:[], data:{} };
+        const debouncedChangePost = makeDebounce(params.callback_debounce, () => {
+          if (params.callback_triggers.includes('onChange')) {
+            sendPayload('onChange', lastValidate);
+          }
+        });
+
+        // Mount form
+        const handle = JSFVanilla.renderJsonSchemaForm(document.getElementById('app'), {
+          schema,
+          oneOfBranchTitleVisibility:'hidden',
+          classNamePrefix: 'jsf-',
+          debug: params.debug,
+          onValidate: (ctx) => { lastValidate = ctx; },
+          onChange: () => { debouncedChangePost(); },
+          onSubmit: (data) => {
+            // Ensure we have latest validity
+            const ctx = lastValidate || { valid:true, errors:[], data };
+            if (params.callback_triggers.includes('onSubmit')) {
+              sendPayload('onSubmit', ctx);
+            } else {
+              // Default UX when no callback configured
+              alert(JSON.stringify(data, null, 2));
+            }
+          },
+          onSubmitFailed: (ctx) => {
+            if (params.callback_triggers.includes('onSubmit')) {
+              sendPayload('onSubmit', ctx);
+            } else if (params.debug) {
+              showDebug({ trigger:'onSubmit', ...ctx });
+            }
+          },
+          onSchemaLoad: () => {}, // placeholder for parity
+          onBranchChange: () => {},
+          onArrayAdd: () => {},
+          onArrayRemove: () => {},
+        });
+
+        // Expose for console debugging
+        window.__jsf = { handle };
+      })();
+    })();
+  </script>
+</body>
+</html>
