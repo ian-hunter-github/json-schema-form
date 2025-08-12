@@ -152,8 +152,6 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
 
   // Track const paths seen during render for error suppression
   const constPathsRef = useRef<Set<string>>(new Set());
-  // Paths of discriminator const fields to hide (e.g. profile.kind)
-  const hiddenConstPathsRef = useRef<Set<string>>(new Set());
   const resetConstPaths = () => {
     constPathsRef.current = new Set();
   };
@@ -372,11 +370,6 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       typeof s === "object" &&
       Object.prototype.hasOwnProperty.call(s, "const")
     ) {
-      // Hide discriminator consts that are registered for this path
-      if (hiddenConstPathsRef.current.has(path)) {
-        if (autoConstTagging) (engineRef.current as any).setValue(path, (s as any).const);
-        return null;
-      }
       constPathsRef.current.add(path);
       if (autoConstTagging) engineRef.current.setValue(path, s.const);
       const display =
@@ -440,15 +433,6 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
     if (Array.isArray(s?.oneOf) || Array.isArray(s?.anyOf)) {
       const group = s.oneOf || s.anyOf;
       const idx = state.activeOneOf[path] ?? 0;
-
-      // Discriminator property name on the selector schema (if any)
-      const discProp = typeof (s as any)?.discriminator?.propertyName === "string"
-        ? (s as any).discriminator.propertyName
-        : null;
-      if (discProp) {
-        // e.g. path="profile" + ".kind" → hide that const field in the branch UI
-        hiddenConstPathsRef.current.add(path ? `${path}.${discProp}` : discProp);
-      }
 
       return (
         <div
@@ -776,7 +760,6 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
 
   // reset const path tracking before each render pass
   resetConstPaths();
-  hiddenConstPathsRef.current = new Set();
 
   const req: string[] = (schema as any).required || [];
   return (

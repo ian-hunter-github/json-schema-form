@@ -119,7 +119,7 @@ export default function App() {
 
       <JsonSchemaForm
         schema={schema}
-        constVisibility="readonly"
+        constVisibility="hidden"
         autoConstTagging={true}
         constErrorStrategy="suppress-when-managed"
         oneOfBranchTitleVisibility="sr-only"
