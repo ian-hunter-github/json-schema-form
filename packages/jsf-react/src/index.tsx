@@ -181,7 +181,12 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       const at = getSchemaAtPath(schema, path);
       const group = at?.oneOf || at?.anyOf;
       if (Array.isArray(group)) {
-        applyConstTagsForBranch(engineRef.current, path, group[idx], autoConstTagging);
+        applyConstTagsForBranch(
+          engineRef.current,
+          path,
+          group[idx],
+          autoConstTagging
+        );
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -343,7 +348,11 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
 
   // ---------- PURE RENDER FUNCTION (not a component) ----------
   type RFProps = { schema: any; path: string; required: boolean };
-  const renderField = ({ schema: s, path, required }: RFProps): JSX.Element | null => {
+  const renderField = ({
+    schema: s,
+    path,
+    required,
+  }: RFProps): JSX.Element | null => {
     const t = Array.isArray(s?.type)
       ? s.type.find((x: any) => x !== "null")
       : s?.type;
@@ -544,13 +553,16 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
             {title}
             {required ? " *" : ""}
           </legend>
-          {Object.entries(s.properties || {}).map(([k, sub]) =>
-            renderField({
-              schema: sub as any,
-              path: path ? `${path}.${k}` : k,
-              required: req.includes(k),
-            })
-          )}
+
+          {Object.entries(s.properties || {}).map(([k, sub]) => (
+            <React.Fragment key={k}>
+              {renderField({
+                schema: sub as any,
+                path: path ? `${path}.${k}` : k,
+                required: req.includes(k),
+              })}
+            </React.Fragment>
+          ))}
 
           {additionalSchema && (
             <div style={{ marginTop: 6 }}>
@@ -752,17 +764,17 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
   const req: string[] = (schema as any).required || [];
   return (
     <form className={prefix("form")} noValidate onSubmit={handleSubmit}>
-      {(schema as any).type === "object" || (schema as any).properties ? (
-        Object.entries((schema as any).properties || {}).map(([k, s]) =>
-          renderField({
-            schema: s as any,
-            path: k,
-            required: req.includes(k),
-          })
-        )
-      ) : (
-        renderField({ schema: schema as any, path: "", required: false })
-      )}
+      {(schema as any).type === "object" || (schema as any).properties
+        ? Object.entries((schema as any).properties || {}).map(([k, s]) => (
+            <React.Fragment key={k}>
+              {renderField({
+                schema: s as any,
+                path: k,
+                required: req.includes(k),
+              })}
+            </React.Fragment>
+          ))
+        : renderField({ schema: schema as any, path: "", required: false })}
 
       <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
         <button type="submit">Submit</button>
