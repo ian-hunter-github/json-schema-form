@@ -41,29 +41,29 @@ else
 
   # Core
   if [[ -f packages/jsf-core/package.json ]]; then
-    info "Building @totnesdev/jsf-core"
-    npm --workspace @totnesdev/jsf-core run build
+    info "Building @ianhunterpersonal/jsf-core"
+    npm --workspace @ianhunterpersonal/jsf-core run build
     ok "core built"
   fi
 
   # React
   if [[ -f packages/jsf-react/package.json ]]; then
-    info "Building @totnesdev/jsf-react"
-    npm --workspace @totnesdev/jsf-react run build
+    info "Building @ianhunterpersonal/jsf-react"
+    npm --workspace @ianhunterpersonal/jsf-react run build
     ok "react built"
   fi
 
   # Vanilla
   if [[ -f packages/jsf-vanilla/package.json ]]; then
-    info "Building @totnesdev/jsf-vanilla"
-    npm --workspace @totnesdev/jsf-vanilla run build
+    info "Building @ianhunterpersonal/jsf-vanilla"
+    npm --workspace @ianhunterpersonal/jsf-vanilla run build
     ok "vanilla built"
   fi
 
   # Web Component
   if [[ -f packages/jsf-webc/package.json ]]; then
-    info "Building @totnesdev/jsf-webc"
-    npm --workspace @totnesdev/jsf-webc run build
+    info "Building @ianhunterpersonal/jsf-webc"
+    npm --workspace @ianhunterpersonal/jsf-webc run build
     ok "webc built"
   fi
 fi

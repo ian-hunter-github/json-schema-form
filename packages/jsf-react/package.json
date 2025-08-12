@@ -1,35 +1,36 @@
 {
-  "name": "@totnesdev/jsf-react",
-  "version": "0.1.3",
+  "name": "@ianhunterpersonal/jsf-react",
+  "version": "0.0.1-beta.3",
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
-      "default": "./dist/index.js"
+      "types": "./dist/index.d.ts"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./dist/index.css": "./dist/index.css"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": [
-    "./dist/styles.css"
+    "./dist/styles.css",
+    "dist/index.css"
   ],
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
   },
   "dependencies": {
-    "@totnesdev/jsf-core": "0.1.3"
+    "@ianhunterpersonal/jsf-core": "0.0.1-beta.1"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "build": "tsup src/index.tsx --dts --format esm,cjs --clean && node scripts/copy-css.cjs"
+    "build": "tsup src/index.tsx --dts --format esm,cjs --clean && mkdir -p dist && cp src/index.css dist/index.css"
   },
   "files": [
     "dist"

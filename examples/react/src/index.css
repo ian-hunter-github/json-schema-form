@@ -1,0 +1,32 @@
+:root {
+  --jsf-error-bg: #fee2e2;
+  --jsf-dirty-bg: #fff7ed;
+  --jsf-label-color: #111827;
+  --jsf-input-border: #d1d5db;
+  --jsf-radius: 8px;
+  --jsf-spacing-sm: 6px;
+  --jsf-spacing-md: 10px;
+  --jsf-spacing-lg: 16px;
+  --jsf-font-size-sm: 0.875rem;
+  --jsf-font-size-md: 1rem;
+  --jsf-font-size-lg: 1.125rem;
+}
+.jsf-form { display:block; }
+.jsf-field { margin: var(--jsf-spacing-md) 0; }
+.jsf-label { display:block; margin-bottom: 4px; font-weight: 600; color: var(--jsf-label-color); }
+.jsf-input, .jsf-select, .jsf-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--jsf-input-border);
+  border-radius: var(--jsf-radius);
+  font-size: var(--jsf-font-size-md);
+}
+.jsf-error { color:#b91c1c; font-size: var(--jsf-font-size-sm); margin-top: 4px; }
+.is-error .jsf-input, .is-error .jsf-select, .is-error .jsf-textarea { background: var(--jsf-error-bg); }
+.is-dirty:not(.is-error) .jsf-input, .is-dirty:not(.is-error) .jsf-select, .is-dirty:not(.is-error) .jsf-textarea { background: var(--jsf-dirty-bg); }
+
+/* Hide the inner object legend when rendering a selected oneOf branch.
+   We keep it for screen readers (sr-only style) to preserve context. */
+.jsf-field[data-field-type="oneOf"] > .jsf-object fieldset > legend {
+  display: none !important;
+}

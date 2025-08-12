@@ -1,0 +1,15 @@
+{
+  "name": "vanilla-esm",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@ianhunterpersonal/jsf-vanilla": "^0.0.1-beta.1"
+  }
+}

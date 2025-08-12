@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { JsonSchemaForm } from "@totnesdev/jsf-react";
+import { JsonSchemaForm } from "@ianhunterpersonal/jsf-react";
+
 
 const schema = {
   $id: "demo",

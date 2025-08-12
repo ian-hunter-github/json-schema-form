@@ -76,7 +76,7 @@ if (!changed) {
 }
 JS
 
-echo "[INFO] Rebuilding @totnesdev/jsf-react"
-npm --workspace @totnesdev/jsf-react run build
+echo "[INFO] Rebuilding @ianhunterpersonal/jsf-react"
+npm --workspace @ianhunterpersonal/jsf-react run build
 
 echo "[DONE] oneOf branch legend visibility patched and built."

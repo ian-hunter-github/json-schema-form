@@ -1,4 +1,4 @@
-import { renderJsonSchemaForm } from "@totnesdev/jsf-vanilla";
+import { renderJsonSchemaForm } from "@ianhunterpersonal/jsf-vanilla";
 
 type ConstVisibility = "hidden" | "readonly" | "visible";
 type ConstErrorStrategy = "suppress-when-managed" | "show";

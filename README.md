@@ -300,6 +300,21 @@ createRoot(document.getElementById("root")!).render(<App/>);
 ```
 
 * UI shows a selector for branches; if a `discriminator.propertyName` exists (e.g., `kind`), the branch is auto‑picked from current data.
+* **Noisy summary errors** like *must match exactly one schema in oneOf* are suppressed when a branch is explicitly selected; users instead see the specific field‑level errors.
+* **Branch titles inside the selected object** can be visually reduced to avoid duplication—see **options below**.
+
+**Options affecting oneOf/anyOf rendering**
+
+* `oneOfBranchTitleVisibility`: `'sr-only' | 'hidden' | 'visible'` (default `'sr-only'`)
+
+  * `sr-only` keeps the inner object legend for screen readers but hides it visually.
+  * `hidden` removes the inner legend entirely.
+  * `visible` shows the legend (previous behavior).
+* `oneOfBranchShowDescription`: `boolean` (default `true`)
+
+  * If a branch schema has `description`, show it as a small hint under the selector.
+
+> Accessibility note: prefer `sr-only` so screen readers retain context for the inner fieldset.
 
 ### 5.6 additionalProperties editor
 
@@ -434,7 +449,7 @@ Many schemas use **`const`** properties as **discriminator tags** (e.g., `kind: 
 
 ### 6.3 Feature flags (top‑level `oneOf` with discriminator)
 
-<a id="sec-6-3"></a> (top‑level `oneOf` with discriminator)
+<a id="sec-6-3"></a>
 
 ![Screenshot: feature flags oneOf example](docs/img/screenshots/example-feature-flags.png)
 
@@ -451,7 +466,7 @@ Many schemas use **`const`** properties as **discriminator tags** (e.g., `kind: 
 
 ### 6.4 Metadata editor (`additionalProperties`)
 
-<a id="sec-6-4"></a> (`additionalProperties`)
+<a id="sec-6-4"></a>
 
 ![Screenshot: metadata editor example](docs/img/screenshots/example-metadata.png)
 
@@ -514,11 +529,14 @@ This library ships three adapters. All now support **rich event handling** so yo
   keepDataOnOneOfSwitch={false}
   debounceMs={120}
   debug={false}
-  // NEW: const/discriminator management
+  // Const/discriminator management
   constVisibility="hidden" // 'hidden' | 'readonly' | 'visible'
   autoConstTagging={true}
   constErrorStrategy="suppress-when-managed" // or 'show'
-  // NEW hooks
+  // oneOf branch legend/description
+  oneOfBranchTitleVisibility="sr-only" // 'sr-only' | 'hidden' | 'visible'
+  oneOfBranchShowDescription={true}
+  // Hooks
   onValidate={({valid, errors, data})=>{}}
   onSubmitFailed={({errors, data})=>{}}
   onBeforeSubmit={({valid, data})=> true /* return false to cancel */}
@@ -536,51 +554,32 @@ This library ships three adapters. All now support **rich event handling** so yo
 
 **Quick reference**
 
-| Prop                                       | What it does                               | Notes                                           |
-| ------------------------------------------ | ------------------------------------------ | ----------------------------------------------- |
-| `schema`                                   | JSON Schema to render                      | Required                                        |
-| `initialData`                              | Seed form values                           | Applied on mount                                |
-| `onChange(data)`                           | Called after debounced changes             | For autosave/analytics                          |
-| `onSubmit(data)`                           | Called when valid submit occurs            | Not cancelable (use `onBeforeSubmit`)           |
-| `onValidate(ctx)`                          | Called after each validation               | `{ valid, errors[], data, ts }`                 |
-| `onSubmitFailed(ctx)`                      | Called when submit fails validation        | Use to focus or toast                           |
-| `onBeforeSubmit(ctx)`                      | **Cancel or allow** submit                 | Return `false` to cancel                        |
-| `onBeforeChange(ctx)`                      | **Veto or allow** a value change           | Return `false` to veto                          |
-| `onAfterChange(ctx)`                       | After a value change                       |                                                 |
-| `onBranchChange(info)`                     | `oneOf/anyOf` branch switched              | `{path,index,schema}`                           |
-| `onArrayAdd(info)` / `onArrayRemove(info)` | Array mutations                            | `{path,index}`                                  |
-| `onReset(data)`                            | Reset button pressed                       | Requires `showReset`                            |
-| `onSchemaLoad(schema)`                     | Schema prop changed                        | Fires after set                                 |
-| `transformError(e)`                        | Translate/alter errors                     | Return `null` to hide                           |
-| `classNamePrefix`                          | CSS class prefix                           | Default `jsf-`                                  |
-| `debounceMs`                               | Validate/change debounce                   | Default 120ms                                   |
-| `keepDataOnOneOfSwitch`                    | Reserved for pruning/keep                  | Planned behavior                                |
-| `debug`                                    | Show live state dump                       | Dev only                                        |
-| `showReset`                                | Show Reset button                          | Hidden by default                               |
-| `constVisibility`                          | Visibility of `const` fields               | `'hidden'` (default), `'readonly'`, `'visible'` |
-| `autoConstTagging`                         | Auto-set branch tag values                 | `true` (default)                                |
-| `constErrorStrategy`                       | Show or suppress const errors when managed | `'suppress-when-managed'` (default) or `'show'` |
-
-\---|---|---|
-\| `schema` | JSON Schema to render | Required |
-\| `initialData` | Seed form values | Applied on mount |
-\| `onChange(data)` | Called after debounced changes | For autosave/analytics |
-\| `onSubmit(data)` | Called when valid submit occurs | Not cancelable (use `onBeforeSubmit`) |
-\| `onValidate(ctx)` | Called after each validation | `{ valid, errors[], data, ts }` |
-\| `onSubmitFailed(ctx)` | Called when submit fails validation | Use to focus or toast |
-\| `onBeforeSubmit(ctx)` | **Cancel or allow** submit | Return `false` to cancel |
-\| `onBeforeChange(ctx)` | **Veto or allow** a value change | Return `false` to veto |
-\| `onAfterChange(ctx)` | After a value change | |
-\| `onBranchChange(info)` | `oneOf/anyOf` branch switched | `{path,index,schema}` |
-\| `onArrayAdd(info)` / `onArrayRemove(info)` | Array mutations | `{path,index}` |
-\| `onReset(data)` | Reset button pressed | Requires `showReset` |
-\| `onSchemaLoad(schema)` | Schema prop changed | Fires after set |
-\| `transformError(e)` | Translate/alter errors | Return `null` to hide |
-\| `classNamePrefix` | CSS class prefix | Default `jsf-` |
-\| `debounceMs` | Validate/change debounce | Default 120ms |
-\| `keepDataOnOneOfSwitch` | Reserved for pruning/keep | Planned behavior |
-\| `debug` | Show live state dump | Dev only |
-\| `showReset` | Show Reset button | Hidden by default |
+| Prop                                       | What it does                                       | Notes                                            |
+| ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------ |
+| `schema`                                   | JSON Schema to render                              | Required                                         |
+| `initialData`                              | Seed form values                                   | Applied on mount                                 |
+| `onChange(data)`                           | Called after debounced changes                     | For autosave/analytics                           |
+| `onSubmit(data)`                           | Called when valid submit occurs                    | Not cancelable (use `onBeforeSubmit`)            |
+| `onValidate(ctx)`                          | Called after each validation                       | `{ valid, errors[], data, ts }`                  |
+| `onSubmitFailed(ctx)`                      | Called when submit fails validation                | Use to focus or toast                            |
+| `onBeforeSubmit(ctx)`                      | **Cancel or allow** submit                         | Return `false` to cancel                         |
+| `onBeforeChange(ctx)`                      | **Veto or allow** a value change                   | Return `false` to veto                           |
+| `onAfterChange(ctx)`                       | After a value change                               |                                                  |
+| `onBranchChange(info)`                     | `oneOf/anyOf` branch switched                      | `{path,index,schema}`                            |
+| `onArrayAdd(info)` / `onArrayRemove(info)` | Array mutations                                    | `{path,index}`                                   |
+| `onReset(data)`                            | Reset button pressed                               | Requires `showReset`                             |
+| `onSchemaLoad(schema)`                     | Schema prop changed                                | Fires after set                                  |
+| `transformError(e)`                        | Translate/alter errors                             | Return `null` to hide                            |
+| `classNamePrefix`                          | CSS class prefix                                   | Default `jsf-`                                   |
+| `debounceMs`                               | Validate/change debounce                           | Default 120ms                                    |
+| `keepDataOnOneOfSwitch`                    | Reserved for pruning/keep                          | Planned behavior                                 |
+| `debug`                                    | Show live state dump                               | Dev only                                         |
+| `showReset`                                | Show Reset button                                  | Hidden by default                                |
+| `constVisibility`                          | Visibility of `const` fields                       | `'hidden'` (default), `'readonly'`, `'visible'`  |
+| `autoConstTagging`                         | Auto-set branch tag values                         | `true` (default)                                 |
+| `constErrorStrategy`                       | Show or suppress const errors when managed         | `'suppress-when-managed'` (default) or `'show'`  |
+| `oneOfBranchTitleVisibility`               | Inner legend visibility for selected branch object | `'sr-only'` (default) / `'hidden'` / `'visible'` |
+| `oneOfBranchShowDescription`               | Show branch `description` under selector           | `true` (default)                                 |
 
 ---
 
@@ -597,6 +596,8 @@ This library ships three adapters. All now support **rich event handling** so yo
 * `const-visibility` — `'hidden' | 'readonly' | 'visible'` (default `'hidden'`)
 * `auto-const-tagging` — `'true' | 'false'` (default `'true'`)
 * `const-error-strategy` — `'suppress-when-managed' | 'show'` (default `'suppress-when-managed'`)
+* `oneof-branch-title-visibility` — `'sr-only' | 'hidden' | 'visible'` (default `'sr-only'`)
+* `oneof-branch-show-description` — `'true' | 'false'` (default `'true'`)
 
 **Methods**
 
@@ -645,10 +646,13 @@ const handle = renderJsonSchemaForm(targetElOrSelector, {
   classNamePrefix: "jsf-",
   debug: false,
   keepDataOnOneOfSwitch: false,
-  // NEW: const/discriminator management
+  // Const/discriminator management
   constVisibility: 'hidden',           // 'hidden' | 'readonly' | 'visible'
   autoConstTagging: true,
   constErrorStrategy: 'suppress-when-managed', // or 'show'
+  // oneOf branch legend/description
+  oneOfBranchTitleVisibility: 'sr-only', // 'sr-only' | 'hidden' | 'visible'
+  oneOfBranchShowDescription: true,
   // hooks
   onBeforeChange: ({path, value, data}) => true, // return false to veto
   onAfterChange: ({path, data}) => {},
@@ -670,8 +674,6 @@ const handle = renderJsonSchemaForm(targetElOrSelector, {
 ```
 
 ### 8.4 Single‑page demo (no build tools)
-
-<a id="sec-8-4"></a> Single‑page demo (no build tools)
 
 <a id="sec-8-4"></a>
 
@@ -737,6 +739,26 @@ Global theme variables (override in `:root` or scoped container):
 
 * The Web Component renders inside Shadow DOM. For now, **use CSS variables** to theme.
 * `::part(...)` hooks for `field|label|input|error` are planned but not yet exposed.
+
+### 9.4 Visually hidden (sr-only) utility
+
+<a id="sec-9-4"></a>
+
+When `oneOfBranchTitleVisibility` is set to `sr-only`, inner fieldset legends are visually hidden but kept accessible. If you prefer a reusable class, add this CSS and we’ll apply `class="sr-only"` in your wrapper:
+
+```css
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+```
 
 ---
 
@@ -852,7 +874,7 @@ el.addEventListener('jsf-before-change', (e) => {
 * **No `eval` of schema**; input `id`s are sanitized; titles/labels are rendered as text.
 * Treat schemas as **untrusted input**; avoid HTML in titles/descriptions (we escape text anyway).
 * Remote schemas / `$ref` fetching is **off** by default; if you enable it, enforce CORS, same‑origin or an allow‑list, and consider ETag caching.
-* For cross-origin flows (e.g., SPA callbacks), use **`postMessage` with origin checks\`**.
+* For cross-origin flows (e.g., SPA callbacks), use **`postMessage` with origin checks**.
 * Don’t put secrets in query params (e.g., `?callback_auth=`); prefer short‑lived tokens.
 * Consider a **Content Security Policy (CSP)** in production docs.
 

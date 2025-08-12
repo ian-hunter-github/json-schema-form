@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>JSON Schema Form — Web Component demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Import-map shim (works in all modern browsers and guarantees order) -->
+  <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.min.js"></script>
+
+  <!-- Import map: point bare specifiers to your built files -->
+  <script type="importmap-shim">
+{
+  "imports": {
+    "@ianhunterpersonal/jsf-webc": "/packages/jsf-webc/dist/index.js",
+    "@ianhunterpersonal/jsf-vanilla": "/packages/jsf-vanilla/dist/index.js",
+    "@ianhunterpersonal/jsf-core": "/packages/jsf-core/dist/index.js",
+    "ajv": "/node_modules/ajv/dist/ajv.js",
+    "ajv-formats": "/node_modules/ajv-formats/dist/index.js",
+    "fast-deep-equal": "https://esm.sh/fast-deep-equal@3"
+  }
+}
+</script>
+
+  <style>
+    body{ font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; line-height:1.4; padding:24px }
+    .wrap{ max-width: 820px; margin: 0 auto; }
+    .toolbar{ display:flex; gap:8px; margin:12px 0 20px; }
+    .toolbar button{ padding:6px 10px; border-radius:8px; border:1px solid #d1d5db; background:#fff; cursor:pointer; }
+    .hint{ color:#666; margin-top:4px; font-size:.925rem; }
+    pre{ background:#fafafa; border:1px solid #eee; padding:10px; border-radius:8px; overflow:auto; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>JSON Schema Form — Web Component demo</h1>
+    <p class="hint">Serve the repo root after building so these absolute paths resolve.</p>
+
+    <json-schema-form
+      id="form"
+      const-visibility="readonly"
+      oneof-branch-title-visibility="sr-only"
+      oneof-branch-show-description="true"
+    ></json-schema-form>
+
+    <div class="toolbar">
+      <button id="btn-submit" type="button">Submit</button>
+      <button id="btn-reset" type="button">Reset</button>
+      <button id="btn-toggle-debug" type="button">Toggle debug</button>
+    </div>
+
+    <details>
+      <summary>Schema</summary>
+      <pre id="schema-pre"></pre>
+    </details>
+  </div>
+
+  <!-- Use module-shim so it respects the shimmed import map in all browsers -->
+  <script type="module-shim">
+    import "@ianhunterpersonal/jsf-webc";
+
+    const schema = {
+      $id: "webc-demo",
+      type: "object",
+      properties: {
+        title: { type: "string", title: "Title" },
+        profile: {
+          title: "Profile",
+          oneOf: [
+            { title: "Person", type:"object",
+              properties:{ kind:{ const:"person" }, first:{ type:"string" }, last:{ type:"string" } },
+              required:["kind","first","last"]
+            },
+            { title: "Company", type:"object",
+              properties:{ kind:{ const:"company" }, company:{ type:"string" } },
+              required:["kind","company"]
+            }
+          ],
+          discriminator: { propertyName: "kind" }
+        },
+        contact: {
+          type:"object", title:"Contact",
+          properties:{
+            email:{ type:"string", format:"email", title:"Email" },
+            phone:{ type:"string", title:"Phone" },
+            address:{
+              title:"Address",
+              oneOf:[
+                { title:"Domestic (UK)", type:"object",
+                  properties:{ type:{ const:"domestic" }, street:{ type:"string" }, city:{ type:"string" }, postalCode:{ type:"string" } },
+                  required:["type","street","city","postalCode"]
+                },
+                { title:"International", type:"object",
+                  properties:{ type:{ const:"international" }, street:{ type:"string" }, city:{ type:"string" }, country:{ type:"string" } },
+                  required:["type","street","city","country"]
+                }
+              ],
+              discriminator:{ propertyName:"type" }
+            }
+          },
+          required:["email"]
+        },
+        priority:{ type:"integer", title:"Priority", enum:[1,2,3], "x-enumNames":["Low","Medium","High"] },
+        tags:{ type:"array", title:"Tags", items:{ type:"string", title:"Tag" } },
+        lineItems:{
+          type:"array", title:"Line Items",
+          items:{ type:"object", properties:{ sku:{ type:"string" }, qty:{ type:"integer", default:1 }, price:{ type:"number" } }, required:["sku","qty"] }
+        },
+        metadata:{ type:"object", title:"Metadata", properties:{}, additionalProperties:{ type:"string", title:"Value" } }
+      },
+      required:["title","priority"]
+    };
+
+    const el = document.getElementById("form");
+    el.setAttribute("schema", JSON.stringify(schema));
+    document.getElementById("schema-pre").textContent = JSON.stringify(schema, null, 2);
+
+    document.getElementById("btn-submit").addEventListener("click", () => {
+      const data = (el.getData && el.getData()) || {};
+      alert("Submit payload:\n\n" + JSON.stringify(data, null, 2));
+    });
+    document.getElementById("btn-reset").addEventListener("click", () => {
+      if (el.reset) el.reset(); else el.setAttribute("schema", JSON.stringify(schema));
+    });
+    document.getElementById("btn-toggle-debug").addEventListener("click", () => {
+      if (el.hasAttribute("debug")) el.removeAttribute("debug"); else el.setAttribute("debug", "true");
+    });
+  </script>
+</body>
+</html>

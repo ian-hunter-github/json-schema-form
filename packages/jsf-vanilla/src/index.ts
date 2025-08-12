@@ -1,6 +1,6 @@
 // Vanilla adapter with const options + focus-preserving, debounced rerenders
-import { createEngine, getByPath, sanitizeId } from "@totnesdev/jsf-core";
-import type { JSONSchema, ValidationError } from "@totnesdev/jsf-core";
+import { createEngine, getByPath, sanitizeId } from "@ianhunterpersonal/jsf-core";
+import type { JSONSchema, ValidationError } from "@ianhunterpersonal/jsf-core";
 
 type ValidateCtx = { valid: boolean; errors: ValidationError[]; data: any; ts: number };
 type ChangeCtx = { path: string; value: any; data: any; schema: JSONSchema; ts: number };

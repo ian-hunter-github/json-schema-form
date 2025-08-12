@@ -9,8 +9,8 @@ test -f packages/jsf-vanilla/src/index.ts || { err "Run this from json-schema-fo
 
 log "Patching vanilla adapter for immediate re-render + stable caret"
 cat > packages/jsf-vanilla/src/index.ts <<'TS'
-import { createEngine, getByPath, sanitizeId } from "@totnesdev/jsf-core";
-import type { JSONSchema } from "@totnesdev/jsf-core";
+import { createEngine, getByPath, sanitizeId } from "@ianhunterpersonal/jsf-core";
+import type { JSONSchema } from "@ianhunterpersonal/jsf-core";
 
 export type VanillaOptions = {
   schema: JSONSchema;
@@ -276,8 +276,8 @@ export function renderJsonSchemaForm(target: HTMLElement | string, opts: Vanilla
 }
 TS
 
-log "Rebuilding @totnesdev/jsf-vanilla (and core just in case)"
-npm --workspace @totnesdev/jsf-vanilla run build >/dev/null
+log "Rebuilding @ianhunterpersonal/jsf-vanilla (and core just in case)"
+npm --workspace @ianhunterpersonal/jsf-vanilla run build >/dev/null
 ok "jsf-vanilla rebuilt"
 
 echo

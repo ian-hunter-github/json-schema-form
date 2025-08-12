@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import * as JSF from "@totnesdev/jsf-react";
-import '@totnesdev/jsf-react/styles.css';// Use whichever export the package provides:
+import * as JSF from "@ianhunterpersonal/jsf-react";
+import '@ianhunterpersonal/jsf-react/styles.css';// Use whichever export the package provides:
 const JsonSchemaForm: any = (JSF as any).JsonSchemaForm ?? (JSF as any).default;
 
 import "./jsf-demo.css";
@@ -112,7 +112,7 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 780, margin: "40px auto", padding: "0 16px" }}>
-      <h1 style={{ marginBottom: 8 }}>@totnesdev/jsf-react — Demo</h1>
+      <h1 style={{ marginBottom: 8 }}>@ianhunterpersonal/jsf-react — Demo</h1>
       <p style={{ color: "#555", marginTop: 0 }}>
         Top-level & nested <code>oneOf</code>, enum, arrays (incl. array of objects), and <code>additionalProperties</code>.
       </p>

@@ -129,12 +129,12 @@ export function createEngine(schema: JSONSchema, initialData: any = {}, opts: En
 TS
 ok "Ajv patch written"
 
-log "Rebuilding @totnesdev/jsf-core"
-npm --workspace @totnesdev/jsf-core run build >/dev/null
+log "Rebuilding @ianhunterpersonal/jsf-core"
+npm --workspace @ianhunterpersonal/jsf-core run build >/dev/null
 ok "jsf-core built"
 
-log "Rebuilding @totnesdev/jsf-vanilla (SPA depends on it)"
-npm --workspace @totnesdev/jsf-vanilla run build >/dev/null
+log "Rebuilding @ianhunterpersonal/jsf-vanilla (SPA depends on it)"
+npm --workspace @ianhunterpersonal/jsf-vanilla run build >/dev/null
 ok "jsf-vanilla built"
 
 echo

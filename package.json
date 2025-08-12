@@ -6,10 +6,10 @@
     "examples/*"
   ],
   "scripts": {
-    "build:core": "npm --workspace @totnesdev/jsf-core run build",
-    "build:react": "npm --workspace @totnesdev/jsf-react run build",
-    "build:vanilla": "npm --workspace @totnesdev/jsf-vanilla run build",
-    "build:webc": "npm --workspace @totnesdev/jsf-webc run build",
+    "build:core": "npm --workspace @ianhunterpersonal/jsf-core run build",
+    "build:react": "npm --workspace @ianhunterpersonal/jsf-react run build",
+    "build:vanilla": "npm --workspace @ianhunterpersonal/jsf-vanilla run build",
+    "build:webc": "npm --workspace @ianhunterpersonal/jsf-webc run build",
     "build:examples": "npm --workspace examples/react run build",
     "build": "npm run build:core && npm run build:react && npm run build:vanilla && npm run build:webc && npm run build:examples",
     "dev:react": "npm --workspace examples/react run dev",

@@ -33,3 +33,7 @@ coverage/
 .cache/
 .tmp/
 .GitHub/
+
+# Archive
+**/*.tgz
+**/*.bak

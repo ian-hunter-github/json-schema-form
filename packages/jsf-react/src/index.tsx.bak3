@@ -1,7 +1,7 @@
 // React adapter with const visibility/tagging options
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { createEngine, getByPath, sanitizeId } from "@totnesdev/jsf-core";
-import type { JSONSchema, ValidationError } from "@totnesdev/jsf-core";
+import { createEngine, getByPath, sanitizeId } from "@ianhunterpersonal/jsf-core";
+import type { JSONSchema, ValidationError } from "@ianhunterpersonal/jsf-core";
 
 type ChangeCtx = { path: string; value: any; data: any; schema: JSONSchema; ts: number };
 type ValidateCtx = { valid: boolean; errors: ValidationError[]; data: any; ts: number };

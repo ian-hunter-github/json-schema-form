@@ -8,7 +8,7 @@ fail(){ printf "\033[1;31m[FAIL]\033[0m %s\n" "$*"; }
 
 DEMO_DIR="${1:-jsf-react-demo}"
 PKG_DIR="packages/jsf-react"
-PKG_NAME="@totnesdev/jsf-react"
+PKG_NAME="@ianhunterpersonal/jsf-react"
 
 [[ -f "$PKG_DIR/package.json" ]] || { fail "Run from monorepo root. Missing $PKG_DIR/package.json"; exit 1; }
 
@@ -38,7 +38,7 @@ cat > "$DEMO_DIR/package.json" <<'JSON'
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@totnesdev/jsf-react": "file:../packages/jsf-react"
+    "@ianhunterpersonal/jsf-react": "file:../packages/jsf-react"
   },
   "devDependencies": {
     "typescript": "^5.5.4",
@@ -92,7 +92,7 @@ cat > "$DEMO_DIR/index.html" <<'HTML'
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0" />
-    <title>@totnesdev/jsf-react — Demo</title>
+    <title>@ianhunterpersonal/jsf-react — Demo</title>
   </head>
   <body>
     <div id="root"></div>
@@ -113,7 +113,7 @@ TSX
 # App.tsx – robust import that works with either default or named export
 cat > "$DEMO_DIR/src/App.tsx" <<'TSX'
 import React, { useMemo } from "react";
-import * as JSF from "@totnesdev/jsf-react";
+import * as JSF from "@ianhunterpersonal/jsf-react";
 // Use whichever export the package provides:
 const JsonSchemaForm: any = (JSF as any).JsonSchemaForm ?? (JSF as any).default;
 
@@ -226,7 +226,7 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 780, margin: "40px auto", padding: "0 16px" }}>
-      <h1 style={{ marginBottom: 8 }}>@totnesdev/jsf-react — Demo</h1>
+      <h1 style={{ marginBottom: 8 }}>@ianhunterpersonal/jsf-react — Demo</h1>
       <p style={{ color: "#555", marginTop: 0 }}>
         Top-level & nested <code>oneOf</code>, enum, arrays (incl. array of objects), and <code>additionalProperties</code>.
       </p>
@@ -300,8 +300,8 @@ Then open:
   http://localhost:5173
 
 Notes:
-- The demo uses a local file dependency: "@totnesdev/jsf-react": "file:../packages/jsf-react"
+- The demo uses a local file dependency: "@ianhunterpersonal/jsf-react": "file:../packages/jsf-react"
 - If you change the library, rebuild it in the monorepo root:
-    npm --workspace @totnesdev/jsf-react run build
+    npm --workspace @ianhunterpersonal/jsf-react run build
   then refresh your demo.
 EOS

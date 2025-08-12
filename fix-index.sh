@@ -8,8 +8,8 @@ err(){ printf "\033[1;31m[FAIL]\033[0m %s\n" "$*"; }
 # Sanity
 test -d packages/jsf-vanilla || { err "Run this from the repo root (json-schema-form/)"; exit 1; }
 
-log "Rebuilding @totnesdev/jsf-vanilla to ensure IIFE exists"
-npm --workspace @totnesdev/jsf-vanilla run build >/dev/null
+log "Rebuilding @ianhunterpersonal/jsf-vanilla to ensure IIFE exists"
+npm --workspace @ianhunterpersonal/jsf-vanilla run build >/dev/null
 ok "Vanilla build finished"
 
 # Verify output

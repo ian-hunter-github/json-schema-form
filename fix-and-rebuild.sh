@@ -76,17 +76,17 @@ perl -0777 -pe 's/\.oninput\s*=\s*\(\s*e\s*\)\s*=>\s*\{/.oninput = (e: Event) =>
 ok "Event handlers typed (or already OK)"
 
 log "Building packages sequentially"
-log "  -> @totnesdev/jsf-core"
-npm --workspace @totnesdev/jsf-core run build >/dev/null && ok "core built"
+log "  -> @ianhunterpersonal/jsf-core"
+npm --workspace @ianhunterpersonal/jsf-core run build >/dev/null && ok "core built"
 
-log "  -> @totnesdev/jsf-react"
-npm --workspace @totnesdev/jsf-react run build >/dev/null && ok "react built"
+log "  -> @ianhunterpersonal/jsf-react"
+npm --workspace @ianhunterpersonal/jsf-react run build >/dev/null && ok "react built"
 
-log "  -> @totnesdev/jsf-vanilla"
-npm --workspace @totnesdev/jsf-vanilla run build >/dev/null && ok "vanilla built"
+log "  -> @ianhunterpersonal/jsf-vanilla"
+npm --workspace @ianhunterpersonal/jsf-vanilla run build >/dev/null && ok "vanilla built"
 
-log "  -> @totnesdev/jsf-webc"
-npm --workspace @totnesdev/jsf-webc run build >/dev/null && ok "webc built"
+log "  -> @ianhunterpersonal/jsf-webc"
+npm --workspace @ianhunterpersonal/jsf-webc run build >/dev/null && ok "webc built"
 
 log "  -> examples/react (vite)"
 if npm --workspace examples/react run build >/dev/null; then
