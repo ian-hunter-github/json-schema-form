@@ -3,6 +3,7 @@
 > **Status:** Experimental • Version **0.0.1-beta.1** • Do not use in production yet.
 >
 > Packages: `@totnesdev/jsf-core`, `@totnesdev/jsf-react`, `@totnesdev/jsf-vanilla`, `@totnesdev/jsf-webc`
+> **Web Component status:** The `@totnesdev/jsf-webc` adapter is currently **not usable** in this beta. WebC sections below are for preview only; please do not use in apps.
 
 This manual explains how to use and customize the JSON Schema Form generator in **React**, as a **Web Component**, and as a **Vanilla JS** widget. It also covers validation, styling, supported/unsupported JSON Schema features (Draft‑07 baseline), and local development.
 
@@ -10,55 +11,62 @@ This manual explains how to use and customize the JSON Schema Form generator in 
 
 ## Contents
 
-* [1. What it is](#sec-1)
-* [2. Supported platforms](#sec-2)
-* [3. Feature overview](#sec-3)
-* [4. 5‑minute starter](#sec-4)
-
-  * [4.1 React](#sec-4-1)
-  * [4.2 Web Component](#sec-4-2)
-  * [4.3 Vanilla](#sec-4-3)
-* [5. Using JSON Schema](#sec-5)
-
-  * [5.1 Primitives & formats](#sec-5-1)
-  * [5.2 Enums (with labels)](#sec-5-2)
-  * [5.3 Objects & nested fields](#sec-5-3)
-  * [5.4 Arrays](#sec-5-4)
-  * [5.5 oneOf / anyOf + discriminator](#sec-5-5)
-  * [5.6 additionalProperties editor](#sec-5-6)
-  * [5.7 Defaults & required](#sec-5-7)
-  * [5.8 Const fields & discriminators: visibility & auto‑tagging](#sec-5-8)
-* [6. Real‑world examples](#sec-6)
-* [7. Recipes](#sec-7)
-* [8. Adapters & APIs](#sec-8)
-
-  * [8.1 React component API](#sec-8-1)
-  * [8.2 Web Component API](#sec-8-2)
-  * [8.3 Vanilla API](#sec-8-3)
-  * [8.4 Single‑page demo (no build tools)](#sec-8-4)
-* [9. Styling & theming](#sec-9)
-* [10. Validation behavior](#sec-10)
-* [11. Error handling](#sec-11)
-* [12. Accessibility](#sec-12)
-* [13. Performance](#sec-13)
-* [14. Performance benchmarks & tips](#sec-14)
-* [15. Security considerations](#sec-15)
-* [16. Feature matrix (supported vs. not yet)](#sec-16)
-* [17. Troubleshooting](#sec-17)
-* [18. Getting Help](#sec-18)
-* [19. Roadmap](#sec-19)
-* [20. Developers: local build & repo layout](#sec-20)
-* [21. Changelog](#sec-21)
-* [22. Contributing](#sec-22)
-* [23. Publishing to npm (beta/experimental)](#sec-23)
-* [24. License](#sec-24)
-* [25. Appendix: Full demo schema](#sec-25)
+- [JSON Schema Form (beta) — User \& Developer Manual](#json-schema-form-beta--user--developer-manual)
+  - [Contents](#contents)
+  - [1. What it is](#1-what-it-is)
+    - [1.1 Architecture \& data flow](#11-architecture--data-flow)
+  - [2. Supported platforms](#2-supported-platforms)
+  - [3. Feature overview](#3-feature-overview)
+  - [4. 5‑minute starter](#4-5minute-starter)
+    - [4.1 React (quick start)](#41-react-quick-start)
+    - [4.2 Web Component (quick start)](#42-web-component-quick-start)
+    - [4.3 Vanilla (quick start)](#43-vanilla-quick-start)
+  - [5. Using JSON Schema](#5-using-json-schema)
+    - [5.1 Primitives \& formats](#51-primitives--formats)
+    - [5.2 Enums (with labels)](#52-enums-with-labels)
+    - [5.3 Objects \& nested fields](#53-objects--nested-fields)
+    - [5.4 Arrays](#54-arrays)
+    - [5.5 oneOf / anyOf + discriminator](#55-oneof--anyof--discriminator)
+    - [5.6 additionalProperties editor](#56-additionalproperties-editor)
+    - [5.7 Defaults \& required](#57-defaults--required)
+    - [5.8 Const fields \& discriminators: visibility \& auto‑tagging](#58-const-fields--discriminators-visibility--autotagging)
+  - [6. Real‑world examples](#6-realworld-examples)
+    - [6.1 User registration](#61-user-registration)
+    - [6.2 Product catalog item](#62-product-catalog-item)
+    - [6.3 Feature flags (top‑level `oneOf` with discriminator)](#63-feature-flags-toplevel-oneof-with-discriminator)
+    - [6.4 Metadata editor (`additionalProperties`)](#64-metadata-editor-additionalproperties)
+  - [7. Recipes](#7-recipes)
+  - [8. Adapters \& APIs](#8-adapters--apis)
+    - [8.1 React component API](#81-react-component-api)
+    - [8.2 Web Component API](#82-web-component-api)
+    - [8.3 Vanilla API](#83-vanilla-api)
+    - [8.4 Single‑page demo (no build tools)](#84-singlepage-demo-no-build-tools)
+  - [9. Styling \& theming](#9-styling--theming)
+    - [9.1 CSS variables](#91-css-variables)
+    - [9.2 Class names \& data attributes](#92-class-names--data-attributes)
+    - [9.3 Web Component styling notes](#93-web-component-styling-notes)
+    - [9.4 Visually hidden (sr-only) utility](#94-visually-hidden-sr-only-utility)
+    - [9.5 Example stylesheet \& usage (React/Vanilla)](#95-example-stylesheet--usage-reactvanilla)
+  - [10. Validation behavior](#10-validation-behavior)
+  - [11. Error handling](#11-error-handling)
+  - [12. Accessibility](#12-accessibility)
+  - [13. Performance](#13-performance)
+  - [14. Performance benchmarks \& tips](#14-performance-benchmarks--tips)
+  - [15. Security considerations](#15-security-considerations)
+  - [16. Feature matrix (supported vs. not yet)](#16-feature-matrix-supported-vs-not-yet)
+  - [17. Troubleshooting](#17-troubleshooting)
+  - [18. Getting Help](#18-getting-help)
+  - [19. Roadmap](#19-roadmap)
+  - [20. Developers: local build \& repo layout](#20-developers-local-build--repo-layout)
+  - [21. Changelog](#21-changelog)
+  - [22. Contributing](#22-contributing)
+  - [23. Publishing to npm (beta/experimental)](#23-publishing-to-npm-betaexperimental)
+  - [24. License](#24-license)
+  - [25. Appendix: Full demo schema (top‑level \& nested oneOf, enum, array, additionalProperties)](#25-appendix-full-demo-schema-toplevel--nested-oneof-enum-array-additionalproperties)
 
 ---
 
 ## 1. What it is
-
-<a id="sec-1"></a>
 
 A small library that turns a **JSON Schema (Draft‑07+)** into an interactive HTML form, producing JSON data that conforms to the schema.
 
@@ -69,15 +77,7 @@ A small library that turns a **JSON Schema (Draft‑07+)** into an interactive H
 
 ### 1.1 Architecture & data flow
 
-<a id="sec-1-1"></a>
-
-![Architecture: Core + Adapters + Ajv](docs/img/architecture.png)
-
-![Data flow: Input → setValue → Ajv validate → state → render](docs/img/data-flow.png)
-
 ## 2. Supported platforms
-
-<a id="sec-2"></a>
 
 * **Node:** 18+ recommended (tested on 18/20/23)
 * **Browsers:** modern evergreen browsers; Chrome/Edge/Firefox (latest 2); Safari **16+** (iOS 16+). No IE.
@@ -87,8 +87,6 @@ A small library that turns a **JSON Schema (Draft‑07+)** into an interactive H
 ---
 
 ## 3. Feature overview
-
-<a id="sec-3"></a>
 
 ✅ **Supported now**
 
@@ -117,11 +115,7 @@ A small library that turns a **JSON Schema (Draft‑07+)** into an interactive H
 
 ## 4. 5‑minute starter
 
-<a id="sec-4"></a>
-
 ### 4.1 React (quick start)
-
-<a id="sec-4-1"></a>
 
 ```bash
 npm i react react-dom @totnesdev/jsf-react
@@ -172,7 +166,7 @@ createRoot(document.getElementById("root")!).render(<App/>);
 
 ### 4.2 Web Component (quick start)
 
-<a id="sec-4-2"></a>
+> **WebC status:** Not usable in this beta. The snippet below is for preview only.
 
 ```html
 <!-- When installed locally -->
@@ -191,8 +185,6 @@ createRoot(document.getElementById("root")!).render(<App/>);
 
 ### 4.3 Vanilla (quick start)
 
-<a id="sec-4-3"></a>
-
 ```html
 <script type="module">
   import { renderJsonSchemaForm } from "@totnesdev/jsf-vanilla";
@@ -207,13 +199,7 @@ createRoot(document.getElementById("root")!).render(<App/>);
 
 ## 5. Using JSON Schema
 
-<a id="sec-5"></a>
-
 ### 5.1 Primitives & formats
-
-<a id="sec-5-1"></a>
-
-![Screenshot: primitives and formats rendered inputs](docs/img/screenshots/primitives-formats.png)
 
 * `string` / `number` / `integer` / `boolean` map to HTML inputs.
 * `format` maps to input types:
@@ -226,10 +212,6 @@ createRoot(document.getElementById("root")!).render(<App/>);
   * `password` → `type="password"`
 
 ### 5.2 Enums (with labels)
-
-<a id="sec-5-2"></a>
-
-![Screenshot: enum select with labels](docs/img/screenshots/enums.png)
 
 ```json
 {
@@ -244,10 +226,6 @@ createRoot(document.getElementById("root")!).render(<App/>);
 * Non‑string enum values are preserved by parsing the selected option.
 
 ### 5.3 Objects & nested fields
-
-<a id="sec-5-3"></a>
-
-![Screenshot: object with nested fields](docs/img/screenshots/objects-nested.png)
 
 ```json
 {
@@ -269,10 +247,6 @@ createRoot(document.getElementById("root")!).render(<App/>);
 
 ### 5.4 Arrays
 
-<a id="sec-5-4"></a>
-
-![Screenshot: array of primitives and array of objects](docs/img/screenshots/arrays.png)
-
 * Arrays of primitives render a dynamic list with **Add** / **Remove**.
 * Arrays of objects render a list of grouped sub‑fields per item.
 
@@ -283,10 +257,6 @@ createRoot(document.getElementById("root")!).render(<App/>);
 > `minItems`, `maxItems` are respected for enabling/disabling add/remove; reorder & virtualization are **not yet** implemented.
 
 ### 5.5 oneOf / anyOf + discriminator
-
-<a id="sec-5-5"></a>
-
-![Screenshot: oneOf/anyOf branch selector and discriminator](docs/img/screenshots/oneof-selector.png)
 
 ```json
 {
@@ -318,10 +288,6 @@ createRoot(document.getElementById("root")!).render(<App/>);
 
 ### 5.6 additionalProperties editor
 
-<a id="sec-5-6"></a>
-
-![Screenshot: additionalProperties editor with add/remove rows](docs/img/screenshots/additional-properties.png)
-
 Use this to allow arbitrary keys under an object. The UI lets users add/remove keys and edit their values.
 
 ```json
@@ -339,6 +305,8 @@ Use this to allow arbitrary keys under an object. The UI lets users add/remove k
 
 **Example (HTML, Web Component):**
 
+> **WebC status:** Not usable in this beta; example for reference only.
+
 ```html
 <json-schema-form id="meta"></json-schema-form>
 <script type="module">
@@ -355,16 +323,12 @@ Use this to allow arbitrary keys under an object. The UI lets users add/remove k
 
 ### 5.7 Defaults & required
 
-<a id="sec-5-7"></a>
-
 * `default` values are applied on mount and when adding array/object items.
 * `required` fields show an asterisk. Validation messages indicate missing required fields precisely on the child field path.
 
 ### 5.8 Const fields & discriminators: visibility & auto‑tagging
 
-<a id="sec-5-8"></a>
-
-Many schemas use **`const`** properties as **discriminator tags** (e.g., `kind: "person"`). The adapters now manage these for you.
+Many schemas use \`\` properties as **discriminator tags** (e.g., `kind: "person"`). The adapters now manage these for you.
 
 **Behavior**
 
@@ -395,13 +359,7 @@ Many schemas use **`const`** properties as **discriminator tags** (e.g., `kind: 
 
 ## 6. Real‑world examples
 
-<a id="sec-6"></a>
-
 ### 6.1 User registration
-
-<a id="sec-6-1"></a>
-
-![Screenshot: registration form example](docs/img/screenshots/example-registration.png)
 
 ```json
 {
@@ -421,10 +379,6 @@ Many schemas use **`const`** properties as **discriminator tags** (e.g., `kind: 
 ```
 
 ### 6.2 Product catalog item
-
-<a id="sec-6-2"></a>
-
-![Screenshot: product item example](docs/img/screenshots/example-product.png)
 
 ```json
 {
@@ -449,10 +403,6 @@ Many schemas use **`const`** properties as **discriminator tags** (e.g., `kind: 
 
 ### 6.3 Feature flags (top‑level `oneOf` with discriminator)
 
-<a id="sec-6-3"></a>
-
-![Screenshot: feature flags oneOf example](docs/img/screenshots/example-feature-flags.png)
-
 ```json
 {
   "title": "Flag",
@@ -466,10 +416,6 @@ Many schemas use **`const`** properties as **discriminator tags** (e.g., `kind: 
 
 ### 6.4 Metadata editor (`additionalProperties`)
 
-<a id="sec-6-4"></a>
-
-![Screenshot: metadata editor example](docs/img/screenshots/example-metadata.png)
-
 ```json
 {
   "type": "object",
@@ -482,8 +428,6 @@ Many schemas use **`const`** properties as **discriminator tags** (e.g., `kind: 
 > The UI shows an **Additional properties** section where users can add/remove arbitrary keys.
 
 ## 7. Recipes
-
-<a id="sec-7"></a>
 
 * **Numeric enums with labels**
 
@@ -511,13 +455,9 @@ Many schemas use **`const`** properties as **discriminator tags** (e.g., `kind: 
 
 ## 8. Adapters & APIs
 
-<a id="sec-8"></a>
-
 This library ships three adapters. All now support **rich event handling** so you can intercept changes, validation, and submission.
 
 ### 8.1 React component API
-
-<a id="sec-8-1"></a>
 
 ```tsx
 <JsonSchemaForm
@@ -585,7 +525,7 @@ This library ships three adapters. All now support **rich event handling** so yo
 
 ### 8.2 Web Component API
 
-<a id="sec-8-2"></a>
+> **WebC status:** Not usable in this beta. API spec is provided for planning only.
 
 **Tag:** `<json-schema-form>`
 
@@ -606,12 +546,12 @@ This library ships three adapters. All now support **rich event handling** so yo
 * `validate(): boolean`
 * `reset(): void`
 
-**Events** (all bubble through Shadow DOM; **`jsf-submit` is cancelable**):
+**Events** (all bubble through Shadow DOM; \`\`\*\* is cancelable\*\*):
 
 * `jsf-before-change` — `{ path, value, data, ts }` (cancelable)
 * `jsf-change` — `{ path, value, data, ts }`
 * `jsf-validate` — `{ valid, errors[], data, ts }`
-* `jsf-submit` — `{ data, ts }` (**call `event.preventDefault()` to take over**)
+* `jsf-submit` — `{ data, ts }` (**call **\`\`** to take over**)
 * `jsf-submit-failed` — `{ valid:false, errors[], data, ts }`
 * `jsf-branch` — `{ path, index, ts }`
 * `jsf-array-add` / `jsf-array-remove` — `{ path, index, ts }`
@@ -634,8 +574,6 @@ This library ships three adapters. All now support **rich event handling** so yo
 ---
 
 ### 8.3 Vanilla API
-
-<a id="sec-8-3"></a>
 
 ```ts
 import { renderJsonSchemaForm } from "@totnesdev/jsf-vanilla";
@@ -675,8 +613,6 @@ const handle = renderJsonSchemaForm(targetElOrSelector, {
 
 ### 8.4 Single‑page demo (no build tools)
 
-<a id="sec-8-4"></a>
-
 Open `examples/spa/index.html` directly, or serve the folder:
 
 ```bash
@@ -692,13 +628,7 @@ open http://localhost:8080
 
 ## 9. Styling & theming
 
-<a id="sec-9"></a>
-
-![Screenshot: themed form using CSS variables](docs/img/screenshots/theming.png)
-
 ### 9.1 CSS variables
-
-<a id="sec-9-1"></a>
 
 Global theme variables (override in `:root` or scoped container):
 
@@ -711,8 +641,6 @@ Global theme variables (override in `:root` or scoped container):
 * `--jsf-font-size-sm`, `--jsf-font-size-md`, `--jsf-font-size-lg`
 
 ### 9.2 Class names & data attributes
-
-<a id="sec-9-2"></a>
 
 * Structural classes (prefixed by `classNamePrefix`, default `jsf-`):
 
@@ -735,14 +663,12 @@ Global theme variables (override in `:root` or scoped container):
 
 ### 9.3 Web Component styling notes
 
-<a id="sec-9-3"></a>
+> **WebC status:** Not usable in this beta. Styling notes refer to a future release.
 
 * The Web Component renders inside Shadow DOM. For now, **use CSS variables** to theme.
 * `::part(...)` hooks for `field|label|input|error` are planned but not yet exposed.
 
 ### 9.4 Visually hidden (sr-only) utility
-
-<a id="sec-9-4"></a>
 
 When `oneOfBranchTitleVisibility` is set to `sr-only`, inner fieldset legends are visually hidden but kept accessible. If you prefer a reusable class, add this CSS and we’ll apply `class="sr-only"` in your wrapper:
 
@@ -760,11 +686,92 @@ When `oneOfBranchTitleVisibility` is set to `sr-only`, inner fieldset legends ar
 }
 ```
 
+### 9.5 Example stylesheet & usage (React/Vanilla)
+
+A minimal, drop‑in stylesheet you can tweak or scope.
+
+```css
+/* jsf-theme.css */
+:root {
+  --jsf-radius: 8px;
+  --jsf-spacing-sm: 0.4rem;
+  --jsf-spacing-md: 0.75rem;
+  --jsf-spacing-lg: 1rem;
+
+  --jsf-label-color: #111827;
+  --jsf-input-border: #d1d5db;
+  --jsf-error-bg: #fef2f2;
+  --jsf-dirty-bg: #fffbeb;
+
+  --jsf-font-size-sm: 0.875rem;
+  --jsf-font-size-md: 1rem;
+  --jsf-font-size-lg: 1.125rem;
+}
+
+/* Basic structure */
+.jsf-form { display: grid; gap: var(--jsf-spacing-md); }
+.jsf-field { display: grid; gap: 0.25rem; }
+.jsf-label { color: var(--jsf-label-color); font-weight: 600; }
+.jsf-input, .jsf-select {
+  border: 1px solid var(--jsf-input-border);
+  border-radius: var(--jsf-radius);
+  padding: 0.5rem 0.625rem;
+  font-size: var(--jsf-font-size-md);
+}
+.jsf-error {
+  background: var(--jsf-error-bg);
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--jsf-radius);
+}
+.is-dirty .jsf-input, .is-dirty .jsf-select { background: var(--jsf-dirty-bg); }
+```
+
+**React usage**
+
+```tsx
+// main.tsx or App.tsx
+import './jsf-theme.css';
+
+function App() {
+  return (
+    <div className="my-form-scope">
+      <JsonSchemaForm
+        schema={schema}
+        classNamePrefix="jsf-" // keep in sync with selectors in the CSS above
+      />
+    </div>
+  );
+}
+```
+
+Scope and override variables locally (optional):
+
+```css
+.my-form-scope {
+  --jsf-input-border: #94a3b8;
+  --jsf-label-color: #0f172a;
+}
+```
+
+**Vanilla usage**
+
+```html
+<link rel="stylesheet" href="/css/jsf-theme.css" />
+<div id="mount" class="my-form-scope"></div>
+<script type="module">
+  import { renderJsonSchemaForm } from "@totnesdev/jsf-vanilla";
+  const handle = renderJsonSchemaForm(document.getElementById("mount"), {
+    schema,
+    classNamePrefix: "jsf-"
+  });
+</script>
+```
+
+> Tip: If you customize `classNamePrefix`, adjust the class selectors in your CSS accordingly (e.g., `.acme-form .acme-input`).
+
 ---
 
 ## 10. Validation behavior
-
-<a id="sec-10"></a>
 
 * **Ajv 8** with `ajv-formats` validates on **every change** (debounced) and **on submit**.
 * Unknown vendor keywords (`x-enumNames`, `x-enum-labels`, `discriminator`) are tolerated.
@@ -772,10 +779,6 @@ When `oneOfBranchTitleVisibility` is set to `sr-only`, inner fieldset legends ar
 * React adapter focuses the **first invalid field** on submit. (Vanilla/WebC: a live error summary is shown; auto‑focus is planned.)
 
 ## 11. Error handling
-
-<a id="sec-11"></a>
-
-![Screenshot: inline errors and error summary](docs/img/screenshots/error-states.png)
 
 **What you get:** a normalized error shape and hooks/events to observe or customize.
 
@@ -805,6 +808,8 @@ When `oneOfBranchTitleVisibility` is set to `sr-only`, inner fieldset legends ar
 />
 ```
 
+> **WebC status:** Not usable in this beta; example for reference only.
+
 ```js
 // Web Component (cancelable submit)
 el.addEventListener('jsf-submit', (e) => {
@@ -828,8 +833,6 @@ el.addEventListener('jsf-before-change', (e) => {
 
 ## 12. Accessibility
 
-<a id="sec-12"></a>
-
 * Labels are linked via `for`/`id`.
 * Fields with errors get `aria-invalid` and `aria-describedby`.
 * Keyboard navigation: inputs/selects/buttons receive focus; array controls are buttons.
@@ -839,50 +842,42 @@ el.addEventListener('jsf-before-change', (e) => {
 
 ## 13. Performance
 
-<a id="sec-13"></a>
-
 * Validators are cached per schema `$id`.
 * Change validation is **debounced** (default 120ms).
 * Intended target: \~20 top‑level fields; 3 nested levels; sub‑100ms typical updates on modern hardware.
 
 ## 14. Performance benchmarks & tips
 
-<a id="sec-14"></a>
-
 > Numbers below are indicative; run Lighthouse/DevTools and your own scenarios.
 
 **Example measurements**
 
-| Schema         | Fields | Avg onChange validate |     P95 |
-| -------------- | -----: | --------------------: | ------: |
-| Basic          |     10 |                2–4 ms |  < 8 ms |
-| Medium         |     25 |               6–10 ms | < 18 ms |
-| Nested + oneOf |     30 |               8–12 ms | < 22 ms |
+| Schema         | Fields | Avg onChange validate | P95     |
+| -------------- | ------ | --------------------- | ------- |
+| Basic          | 10     | 2–4 ms                | < 8 ms  |
+| Medium         | 25     | 6–10 ms               | < 18 ms |
+| Nested + oneOf | 30     | 8–12 ms               | < 22 ms |
 
 **Tips**
 
-* Give each schema a stable **`$id`** to maximize Ajv reuse.
-* Increase **`debounceMs`** (e.g., 150–250ms) for heavy schemas.
+* Give each schema a stable \`\` to maximize Ajv reuse.
+* Increase \`\` (e.g., 150–250ms) for heavy schemas.
 * Split very large forms into tabs/steps; avoid rendering hundreds of inputs at once.
 * Avoid huge arrays in a single view; paginate (virtualization is planned).
-* Prefer **discriminator-based `oneOf`** with `const` tags for faster branch selection.
+* Prefer \*\*discriminator-based \*\*\`\` with `const` tags for faster branch selection.
 
 ## 15. Security considerations
 
-<a id="sec-15"></a>
-
-* **No `eval` of schema**; input `id`s are sanitized; titles/labels are rendered as text.
+* **No **\`\`** of schema**; input `id`s are sanitized; titles/labels are rendered as text.
 * Treat schemas as **untrusted input**; avoid HTML in titles/descriptions (we escape text anyway).
 * Remote schemas / `$ref` fetching is **off** by default; if you enable it, enforce CORS, same‑origin or an allow‑list, and consider ETag caching.
-* For cross-origin flows (e.g., SPA callbacks), use **`postMessage` with origin checks**.
+* For cross-origin flows (e.g., SPA callbacks), use \`\`\*\* with origin checks\*\*.
 * Don’t put secrets in query params (e.g., `?callback_auth=`); prefer short‑lived tokens.
 * Consider a **Content Security Policy (CSP)** in production docs.
 
 ---
 
 ## 16. Feature matrix (supported vs. not yet)
-
-<a id="sec-16"></a>
 
 | Area                                                                | Status                                      |
 | ------------------------------------------------------------------- | ------------------------------------------- |
@@ -908,9 +903,7 @@ el.addEventListener('jsf-before-change', (e) => {
 
 ## 17. Troubleshooting
 
-<a id="sec-17"></a>
-
-**Opening SPA via `file://`**
+\*\*Opening SPA via \*\*\`\`
 `?schema_url=` may fail due to CORS. Start a tiny server:
 
 ```bash
@@ -918,16 +911,16 @@ npx http-server examples/spa -p 8080
 open http://localhost:8080
 ```
 
-**Unknown keyword `x-enumNames`**
+\*\*Unknown keyword \*\*\`\`
 If you supply your own Ajv instance in advanced setups, set `strict:false` or register custom keywords. The default core tolerates vendor keywords.
 
 **Enum values saved as strings**
 For non‑string enums we serialize option values and parse them back. Ensure `enum` and `x-enumNames` lengths match.
 
-**Can’t type into `<input type="email">` or fields drop keystrokes**
+**Can’t type into **\`\`** or fields drop keystrokes**
 Ensure you’re on ≥ `0.0.1-beta.1`. Also, don’t unmount/remount the form on each keystroke; keep `schema` stable in React.
 
-**`oneOf` never validates**
+\`\`\*\* never validates\*\*
 Check `discriminator.propertyName` and that each branch includes a matching `const` for that property.
 
 **Intercepting submit**
@@ -940,15 +933,11 @@ React focuses the first invalid input on submit. Vanilla/WebC will get focus+anc
 
 ## 18. Getting Help
 
-<a id="sec-18"></a>
-
 * **Bugs & feature requests:** GitHub Issues (include schema, adapter, Node/Browser versions, minimal repro).
 * **Questions & ideas:** GitHub Discussions.
 * **Security:** email security\@yourdomain (avoid public issues for vulnerabilities).
 
 ## 19. Roadmap
-
-<a id="sec-19"></a>
 
 * `allOf` merge; `if/then/else` conditional logic
 * `$ref` / `$defs` resolution and remote fetch with caching & ETag
@@ -961,8 +950,6 @@ React focuses the first invalid input on submit. Vanilla/WebC will get focus+anc
 ---
 
 ## 20. Developers: local build & repo layout
-
-<a id="sec-20"></a>
 
 **Monorepo**
 
@@ -991,8 +978,6 @@ npm run dev:react           # starts the Vite demo (React)
 
 ## 21. Changelog
 
-<a id="sec-21"></a>
-
 **0.0.1-beta.1**
 
 * Initial beta release.
@@ -1006,8 +991,6 @@ npm run dev:react           # starts the Vite demo (React)
 
 ## 22. Contributing
 
-<a id="sec-22"></a>
-
 We welcome issues and PRs. To contribute:
 
 1. Fork and clone the repo
@@ -1018,8 +1001,6 @@ We welcome issues and PRs. To contribute:
 (A full `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` will be added.)
 
 ## 23. Publishing to npm (beta/experimental)
-
-<a id="sec-23"></a>
 
 When ready to publish beta builds:
 
@@ -1042,15 +1023,13 @@ npm i @totnesdev/jsf-react@experimental
 
 ## 24. License
 
-<a id="sec-24"></a>
-
 **TBD by project owner.** (Common choices: MIT/Apache‑2.0/BSD‑3‑Clause.)
 
 ---
 
 ## 25. Appendix: Full demo schema (top‑level & nested oneOf, enum, array, additionalProperties)
 
-<a id="sec-25"></a> (top‑level & nested oneOf, enum, array, additionalProperties)
+&#x20;(top‑level & nested oneOf, enum, array, additionalProperties)
 
 ```json
 {
