@@ -8,12 +8,15 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
-    }
+    },
+    "./styles.css": "./dist/styles.css"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/styles.css"
+  ],
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
@@ -26,6 +29,10 @@
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "build": "tsup src/index.tsx --dts --format esm,cjs --clean"
-  }
+    "build": "tsup src/index.tsx --dts --format esm,cjs --clean && node scripts/copy-css.cjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "style": "./dist/styles.css"
 }
