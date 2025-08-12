@@ -1,0 +1,18 @@
+:root{
+  --jsf-error-bg: #fee2e2;
+  --jsf-dirty-bg: #fff7ed;
+  --jsf-input-border: #d1d5db;
+  --jsf-radius: 8px;
+}
+.jsf-form { display:block; }
+.jsf-field { margin: 10px 0; }
+.jsf-label { display:block; margin-bottom: 4px; font-weight: 600; }
+.jsf-input, .jsf-select, .jsf-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--jsf-input-border);
+  border-radius: var(--jsf-radius);
+}
+.jsf-error { color:#b91c1c; font-size: 0.875rem; margin-top: 4px; }
+.is-error .jsf-input, .is-error .jsf-select, .is-error .jsf-textarea { background: var(--jsf-error-bg); }
+.is-dirty:not(.is-error) .jsf-input, .is-dirty:not(.is-error) .jsf-select, .is-dirty:not(.is-error) .jsf-textarea { background: var(--jsf-dirty-bg); }
