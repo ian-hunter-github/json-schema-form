@@ -122,7 +122,7 @@ export default function App() {
         constVisibility="hidden"
         autoConstTagging={true}
         constErrorStrategy="suppress-when-managed"
-        oneOfBranchTitleVisibility="sr-only"
+        oneOfBranchTitleVisibility="hidden"
         oneOfBranchShowDescription={true}
         onSubmit={(data: any) => {
           alert("Submitted data:\\n" + JSON.stringify(data, null, 2));

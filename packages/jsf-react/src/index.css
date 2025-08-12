@@ -24,3 +24,9 @@
 .jsf-error { color:#b91c1c; font-size: var(--jsf-font-size-sm); margin-top: 4px; }
 .is-error .jsf-input, .is-error .jsf-select, .is-error .jsf-textarea { background: var(--jsf-error-bg); }
 .is-dirty:not(.is-error) .jsf-input, .is-dirty:not(.is-error) .jsf-select, .is-dirty:not(.is-error) .jsf-textarea { background: var(--jsf-dirty-bg); }
+
+/* Hide the inner object legend when rendering a selected oneOf branch.
+   We keep it for screen readers (sr-only style) to preserve context. */
+.jsf-field[data-field-type="oneOf"] > .jsf-object fieldset > legend {
+  display: none !important;
+}
