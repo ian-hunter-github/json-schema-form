@@ -101,23 +101,6 @@ function applyConstTagsForBranch(
   }
 }
 
-// Walk schema via dot path through properties (best-effort for oneOf containers)
-function getSchemaAtPath(root: any, path: string): any {
-  if (!path) return root;
-  const segs = path.split(".");
-  let cur: any = root;
-  for (const seg of segs) {
-    if (!cur || typeof cur !== "object") return undefined;
-    if (cur.properties && cur.properties[seg]) {
-      cur = cur.properties[seg];
-    } else {
-      // unknown segment -> stop
-      return cur;
-    }
-  }
-  return cur;
-}
-
 export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
   schema,
   initialData,
@@ -171,21 +154,6 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       firstMount.current = false;
     }
   }, [initialData]);
-
-  // After each tick, ensure current active oneOf/anyOf branch const tags are applied.
-  useEffect(() => {
-    const st = engineRef.current.getState() as any;
-    const active: Record<string, number> = st.activeOneOf || {};
-    for (const path of Object.keys(active)) {
-      const idx = active[path] ?? 0;
-      const at = getSchemaAtPath(schema, path);
-      const group = at?.oneOf || at?.anyOf;
-      if (Array.isArray(group)) {
-        applyConstTagsForBranch(engineRef.current, path, group[idx], autoConstTagging);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick, schema, autoConstTagging]);
 
   const runPostChange = () => {
     schedule(async () => {
@@ -274,6 +242,7 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
     let errs: ValidationError[] = state.errors as ValidationError[];
 
     if (transformError) {
+      // type-predicate keeps TS happy after filter(Boolean)
       errs = errs
         .map(transformError)
         .filter((x): x is ValidationError => Boolean(x));
@@ -341,9 +310,11 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
 
   const fieldError = (path: string) => errors.find((e) => e.path === path);
 
-  // ---------- PURE RENDER FUNCTION (not a component) ----------
-  type RFProps = { schema: any; path: string; required: boolean };
-  const renderField = ({ schema: s, path, required }: RFProps): JSX.Element | null => {
+  const RenderField: React.FC<{
+    schema: any;
+    path: string;
+    required: boolean;
+  }> = ({ schema: s, path, required }) => {
     const t = Array.isArray(s?.type)
       ? s.type.find((x: any) => x !== "null")
       : s?.type;
@@ -425,6 +396,16 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       const group = s.oneOf || s.anyOf;
       const idx = state.activeOneOf[path] ?? 0;
 
+      useEffect(() => {
+        applyConstTagsForBranch(
+          engineRef.current,
+          path,
+          group[idx],
+          autoConstTagging
+        );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [idx]);
+
       return (
         <div
           className={wrapCls}
@@ -454,7 +435,7 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
             ))}
           </select>
           <div className={prefix("object")}>
-            {renderField({ schema: group[idx], path, required })}
+            <RenderField schema={group[idx]} path={path} required={required} />
           </div>
           {err && (
             <div className={prefix("error")} id={id + "-err"}>
@@ -544,13 +525,14 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
             {title}
             {required ? " *" : ""}
           </legend>
-          {Object.entries(s.properties || {}).map(([k, sub]) =>
-            renderField({
-              schema: sub as any,
-              path: path ? `${path}.${k}` : k,
-              required: req.includes(k),
-            })
-          )}
+          {Object.entries(s.properties || {}).map(([k, sub]) => (
+            <RenderField
+              key={k}
+              schema={sub as any}
+              path={path ? `${path}.${k}` : k}
+              required={req.includes(k)}
+            />
+          ))}
 
           {additionalSchema && (
             <div style={{ marginTop: 6 }}>
@@ -565,11 +547,11 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
                     marginTop: 6,
                   }}
                 >
-                  {renderField({
-                    schema: additionalSchema,
-                    path: path ? `${path}.${k}` : k,
-                    required: false,
-                  })}
+                  <RenderField
+                    schema={additionalSchema}
+                    path={path ? `${path}.${k}` : k}
+                    required={false}
+                  />
                   <button
                     type="button"
                     onClick={() => {
@@ -590,7 +572,7 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
                   </button>
                 </div>
               ))}
-              {renderAddKeyRow(path)}
+              <AddKeyRow path={path} />
             </div>
           )}
           {err && (
@@ -620,11 +602,11 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
           <div>
             {items.map((_v: any, i: number) => (
               <div key={i} style={{ marginBottom: 8 }}>
-                {renderField({
-                  schema: s.items,
-                  path: `${path}.${i}`,
-                  required: false,
-                })}
+                <RenderField
+                  schema={s.items}
+                  path={`${path}.${i}`}
+                  required={false}
+                />
                 <button type="button" onClick={() => removeItem(path, i)}>
                   Remove
                 </button>
@@ -702,48 +684,41 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       </div>
     );
   };
-  // ---------- /PURE RENDER FUNCTION ----------
 
-  // Inline row for additionalProperties key add
-  const renderAddKeyRow = (path: string) => {
-    const [key, setKey] = useState(""); // NOTE: local hook in render helper is not allowed; replace with controlled below
-    // We cannot use hooks here (this is not a component). Implement as inline controlled inputs via a tiny inner component:
-    const AddKeyRow: React.FC = () => {
-      const [k, setK] = useState("");
-      return (
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <input
-            className={prefix("input")}
-            placeholder="new key"
-            value={k}
-            onChange={(e) => setK(e.currentTarget.value)}
-          />
-          <button
-            type="button"
-            onClick={() => {
-              const name = k.trim();
-              if (!name) return;
-              const next = { ...engineRef.current.getState().data };
-              const segs = path ? path.split(".") : [];
-              let cur: any = next;
-              for (const seg of segs) {
-                cur[seg] = cur[seg] ?? {};
-                cur = cur[seg];
-              }
-              if (cur[name] !== undefined) return;
-              cur[name] = undefined;
-              engineRef.current.reset(next);
-              setK("");
-              setTick((x) => x + 1);
-              runPostChange();
-            }}
-          >
-            Add
-          </button>
-        </div>
-      );
-    };
-    return <AddKeyRow />;
+  const AddKeyRow: React.FC<{ path: string }> = ({ path }) => {
+    const [key, setKey] = useState("");
+    return (
+      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+        <input
+          className={prefix("input")}
+          placeholder="new key"
+          value={key}
+          onChange={(e) => setKey(e.currentTarget.value)}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            const name = key.trim();
+            if (!name) return;
+            const next = { ...engineRef.current.getState().data };
+            const segs = path ? path.split(".") : [];
+            let cur: any = next;
+            for (const seg of segs) {
+              cur[seg] = cur[seg] ?? {};
+              cur = cur[seg];
+            }
+            if (cur[name] !== undefined) return;
+            cur[name] = undefined;
+            engineRef.current.reset(next);
+            setKey("");
+            setTick((x) => x + 1);
+            runPostChange();
+          }}
+        >
+          Add
+        </button>
+      </div>
+    );
   };
 
   // reset const path tracking before each render pass
@@ -753,15 +728,16 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
   return (
     <form className={prefix("form")} noValidate onSubmit={handleSubmit}>
       {(schema as any).type === "object" || (schema as any).properties ? (
-        Object.entries((schema as any).properties || {}).map(([k, s]) =>
-          renderField({
-            schema: s as any,
-            path: k,
-            required: req.includes(k),
-          })
-        )
+        Object.entries((schema as any).properties || {}).map(([k, s]) => (
+          <RenderField
+            key={k}
+            schema={s as any}
+            path={k}
+            required={req.includes(k)}
+          />
+        ))
       ) : (
-        renderField({ schema: schema as any, path: "", required: false })
+        <RenderField schema={schema as any} path={""} required={false} />
       )}
 
       <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
