@@ -1,0 +1,95 @@
+JSON Schema Form Generator – Requirements
+1. Overview
+1.1 The library shall take a valid JSON Schema (Draft-07 or later) as input and produce an HTML form that allows the user to create JSON data conforming to that schema.
+1.2 The library shall be written in ReactJS and integrate well with the React ecosystem.
+1.3 The library shall be packaged for distribution via npm, with clear documentation and example usage.
+1.4 A single-page HTML/JS/CSS variant shall also be possible, for embedding in non-React contexts.
+
+2. Supported Field Types
+2.1 Primitive types: string, number, integer, boolean, enum.
+2.2 Formatted strings:
+ • date → HTML date picker
+ • time → HTML time picker
+ • date-time → HTML datetime-local picker
+ • email, uri, password (and similar) → appropriate HTML5 input types when available
+2.3 Enum (primitive): render as a <select> dropdown by default (or radios if configured); labels may come from x-enumNames / x-enum-labels; MUST support enums of non-strings (number, boolean) with correct parsing.
+2.4 Union: oneOf / anyOf → UI selector that switches the visible sub-schema; support for discriminator property to auto-select branch based on data.
+2.5 Composition: support allOf merges and if/then/else conditional schema logic; re-validate affected subtrees when conditions change.
+2.6 Nested object types → grouped sub-fields with hierarchical naming and parent prefix in data-field-name.
+2.7 Arrays of primitives → dynamic list UI with add/remove (and optional reorder) controls; honor minItems, maxItems, and uniqueItems.
+2.8 Arrays of objects → dynamic list of grouped sub-fields per object with add/remove (and optional reorder) controls.
+2.9 Required vs optional fields follow the schema’s required array.
+2.10 $ref / $defs resolution (local); optional remote $ref fetch with allowExternalRefs=true (CORS-compliant, cached by URL + ETag).
+2.11 additionalProperties and patternProperties: render key/value editor; allow/disallow add/remove based on schema; block if additionalProperties: false.
+2.12 Defaults: apply default and/or examples values on mount and when adding array/object items.
+2.13 Nullable (type: [T, "null"]) and const values supported with appropriate widgets.
+
+3. Validation Behaviour
+3.1 All fields must honour JSON Schema validation rules using Ajv + ajv-formats.
+3.2 Validation shall run on every field update (onChange) and on submit (configurable to include onBlur).
+3.3 Fields failing validation shall be marked: light red background (is-error) and an inline error message under the field.
+3.4 Dirty (changed) fields shall be marked with light yellow background (is-dirty); error state overrides dirty.
+3.5 Required fields visually indicated on initial load (e.g., asterisk).
+3.6 Error messages clear immediately once valid; error mapping must use precise data paths; required-missing errors on parent path MUST be associated with the correct missing child field.
+3.7 Debounce validation by default (configurable, ms).
+3.8 Provide hooks for custom error messages/localization.
+
+4. Styling Model
+4.1 Global form styles via CSS custom properties (variables).
+4.2 Structural classes: jsf-form, jsf-object, jsf-array, jsf-field, jsf-label, jsf-input, jsf-error; state classes: is-error, is-dirty.
+4.3 Each field wrapper has data-field-name equal to its full path (e.g., customer.email) and data-field-type (e.g., string, number, boolean, enum, date).
+4.4 Parent object name is visible in child paths (e.g., order.items.0.sku) to enable context styling (e.g., [data-field-name^="order."]).
+4.5 IDs for inputs derive from paths (sanitized, stable across sessions).
+4.6 Clients can override styles globally (CSS vars), per object (context selector), or per field (exact path selector).
+4.7 Web Component exposes ::part(field|label|input|error) for Shadow DOM styling.
+4.8 Document all CSS variables: --jsf-error-bg, --jsf-dirty-bg, --jsf-label-color, --jsf-input-border, --jsf-radius, --jsf-spacing-sm, --jsf-spacing-md, --jsf-spacing-lg, --jsf-font-size-sm, --jsf-font-size-md, --jsf-font-size-lg.
+
+5. Client Usage
+5.1 React: <JsonSchemaForm schema initialData onChange onSubmit classNamePrefix keepDataOnOneOfSwitch />.
+5.2 Web Component: <json-schema-form schema='{}' debug>; fires jsf-change, jsf-submit; methods loadSchema(), getData(), validate(), reset().
+5.3 Vanilla widget: renderJsonSchemaForm(target, { schema, initialData, classNamePrefix }) → returns handle with getData(), setData(), validate(), reset(), destroy().
+5.4 Single-page HTML: Pass ?schema= (JSON-encoded) or ?schema_url= to fetch, plus debug, callback_url, callback_triggers=onChange,onSubmit, callback_debounce, callback_auth.
+5.5 Debug mode (default false): logs lifecycle info and shows payloads in a modal instead of POSTing to callback URL.
+
+6. Performance
+6.1 Use schema $id for caching compiled validators; optional version hash for cache invalidation.
+6.2 Target: up to 3 nested object levels, ~20 top-level fields (~10 primitive + complex) with snappy interactions (<100ms typical updates on modern hardware).
+6.3 Debounce onChange validation and POSTs; partial re-validation when possible.
+6.4 Arrays and large lists: optional virtualization for >50 items.
+
+7. Implementation Requirements
+7.1 Core (headless) — Parse schema → field tree; manage state (data/dirty/touched/active branch); Ajv 8 + ajv-formats integration; error mapping; $id compile cache.
+7.2 React Adapter — Render primitives, objects, arrays, oneOf selector, date/time/datetime, enum; error/dirty visuals, required markers, class prefix and CSS var theme.
+7.3 Web Component Adapter — Shadow DOM; events; attributes map to props; programmatic methods.
+7.4 Vanilla Adapter — Selector/HTMLElement mount; minimal functional coverage.
+7.5 Single-Page HTML — No build tools; CDN Ajv/ajv-formats; supports URL params from §5.4.
+7.6 Build & Publish — TypeScript; ESM + CJS via tsup; correct main/module/types; React peer deps.
+7.7 Testing — Core unit tests (walker, arrays, oneOf switching, error mapping, set/get by path); adapter smoke tests.
+7.8 Security — Sanitize IDs; never eval schema; cross-origin via postMessage + origin checks.
+
+8. Validation & UX Details
+8.1 Validate on change, optional blur, always on submit; configurable via adapter props/options.
+8.2 Inline error text under field; aria-invalid and aria-describedby set when errors exist; focus first error on submit.
+8.3 For oneOf/anyOf, only active branch validated; switching branches prunes inactive data unless keepDataOnOneOfSwitch=true.
+8.4 Keyboard support for array add/remove and oneOf selection.
+
+9. Theming & Class System
+9.1 Default prefix jsf-; allow classNamePrefix override.
+9.2 Core CSS variables (see §4.8).
+9.3 State classes on field wrapper; error background overrides dirty.
+
+10. Accessibility
+10.1 Ensure all interactive elements have keyboard access.
+10.2 Maintain WCAG AA contrast ratios for default theme.
+10.3 Provide ARIA landmarks for form and error summary.
+
+11. Deliverables
+11.1 @yourorg/jsf-core (headless engine).
+11.2 @yourorg/jsf-react (React adapter).
+11.3 @yourorg/jsf-webc (Web Component adapter).
+11.4 @yourorg/jsf-vanilla (vanilla widget).
+11.5 examples/react (Vite demo).
+11.6 examples/spa/index.html (SPA demo with URL params).
+
+12. AI Prompting Note
+12.1 When asking an AI to implement or extend this library, explicitly require strict adherence to this spec (duo-decimal references, primitive enum handling, validation precedence, class naming, adapter APIs).

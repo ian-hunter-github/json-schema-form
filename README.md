@@ -55,6 +55,13 @@ This manual explains how to use and customize the JSON Schema Form generator in 
   - [15. Security considerations](#15-security-considerations)
   - [16. Feature matrix (supported vs. not yet)](#16-feature-matrix-supported-vs-not-yet)
   - [17. Troubleshooting](#17-troubleshooting)
+    - [17.1 Opening SPA via `?schema_url=` may fail due to CORS. Start a tiny server:](#171-opening-spa-via-schema_url-may-fail-due-to-cors-start-a-tiny-server)
+    - [17.2 Unknown keyword](#172-unknown-keyword)
+    - [17.3 Enum values saved as strings](#173-enum-values-saved-as-strings)
+    - [17.4 Can’t type into **\`\`** or fields drop keystrokes](#174-cant-type-into--or-fields-drop-keystrokes)
+    - [17.5 never validates](#175-never-validates)
+    - [17.6 Intercepting submit](#176-intercepting-submit)
+    - [17.7 Scrolling to first error](#177-scrolling-to-first-error)
   - [18. Getting Help](#18-getting-help)
   - [19. Roadmap](#19-roadmap)
   - [20. Developers: local build \& repo layout](#20-developers-local-build--repo-layout)
@@ -903,39 +910,40 @@ el.addEventListener('jsf-before-change', (e) => {
 
 ## 17. Troubleshooting
 
-\*\*Opening SPA via \*\*\`\`
-`?schema_url=` may fail due to CORS. Start a tiny server:
+### 17.1 Opening SPA via `?schema_url=` may fail due to CORS. Start a tiny server:
 
 ```bash
 npx http-server examples/spa -p 8080
 open http://localhost:8080
 ```
 
-\*\*Unknown keyword \*\*\`\`
+### 17.2 Unknown keyword
 If you supply your own Ajv instance in advanced setups, set `strict:false` or register custom keywords. The default core tolerates vendor keywords.
 
-**Enum values saved as strings**
+### 17.3 Enum values saved as strings
+
 For non‑string enums we serialize option values and parse them back. Ensure `enum` and `x-enumNames` lengths match.
 
-**Can’t type into **\`\`** or fields drop keystrokes**
+### 17.4 Can’t type into **\`\`** or fields drop keystrokes
 Ensure you’re on ≥ `0.0.1-beta.1`. Also, don’t unmount/remount the form on each keystroke; keep `schema` stable in React.
 
-\`\`\*\* never validates\*\*
+### 17.5 never validates
+
 Check `discriminator.propertyName` and that each branch includes a matching `const` for that property.
 
-**Intercepting submit**
+### 17.6 Intercepting submit
 React: use `onBeforeSubmit` to cancel. Web Component/Vanilla: listen for `jsf-submit` and call `event.preventDefault()`.
 
-**Scrolling to first error**
+### 17.7 Scrolling to first error
 React focuses the first invalid input on submit. Vanilla/WebC will get focus+anchors in a future release.
 
 ---
 
 ## 18. Getting Help
 
-* **Bugs & feature requests:** GitHub Issues (include schema, adapter, Node/Browser versions, minimal repro).
-* **Questions & ideas:** GitHub Discussions.
-* **Security:** email security\@yourdomain (avoid public issues for vulnerabilities).
+18.1 Bugs & feature requests: GitHub Issues (include schema, adapter, Node/Browser versions, minimal repro).
+18.2 Questions & ideas: GitHub Discussions.
+18.3 Security: email security\@yourdomain (avoid public issues for vulnerabilities).
 
 ## 19. Roadmap
 
@@ -946,6 +954,9 @@ React focuses the first invalid input on submit. Vanilla/WebC will get focus+anc
 * Keep/prune data when switching `oneOf` branches
 * Array item reorder; virtualization for very large lists
 * Web Component `::part()` styling; improved focus management and error summary links
+* Attribute level support of isRequired: true/false
+* Testing and verification of WebC usage.
+* Update to and ensure a reactive UI.
 
 ---
 

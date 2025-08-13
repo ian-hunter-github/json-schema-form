@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import * as JSF from "@ianhunterpersonal/jsf-react";
+
 import '@ianhunterpersonal/jsf-react/styles.css';// Use whichever export the package provides:
 const JsonSchemaForm: any = (JSF as any).JsonSchemaForm ?? (JSF as any).default;
 
@@ -9,7 +10,7 @@ const demoSchema = {
   $id: "react-demo",
   type: "object",
   properties: {
-    title: { type: "string", title: "Title" },
+    title: { type: "string", title: "Title", isRequired: true },
     profile: {
       title: "Profile",
       oneOf: [
@@ -104,7 +105,7 @@ const demoSchema = {
       additionalProperties: { type: "string", title: "Value" }
     }
   },
-  required: ["title", "priority"]
+  required: ["priority"]
 } as const;
 
 export default function App() {
