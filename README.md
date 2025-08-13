@@ -77,17 +77,17 @@ This manual explains how to use and customize the JSON Schema Form generator in 
 
 A small library that turns a **JSON Schema (Draft‑07+)** into an interactive HTML form, producing JSON data that conforms to the schema.
 
-* Core – headless state & validation engine (`@totnesdev/jsf-core`)
-* React adapter – `<JsonSchemaForm />` (`@totnesdev/jsf-react`)
-* Vanilla adapter – `renderJsonSchemaForm()` (`@totnesdev/jsf-vanilla`)
-* Web Component – `<json-schema-form>` (`@totnesdev/jsf-webc`)
+1.1 Core – headless state & validation engine (`@totnesdev/jsf-core`)  
+1.2 React adapter – `<JsonSchemaForm />` (`@totnesdev/jsf-react`)  
+1.3 Vanilla adapter – `renderJsonSchemaForm()` (`@totnesdev/jsf-vanilla`)  
+1.4 Web Component – `<json-schema-form>` (`@totnesdev/jsf-webc`)  
 
 ### 1.1 Architecture & data flow
 
 ## 2. Supported platforms
 
-* **Node:** 18+ recommended (tested on 18/20/23)
-* **Browsers:** modern evergreen browsers; Chrome/Edge/Firefox (latest 2); Safari **16+** (iOS 16+). No IE.
+2.1 **Node:** 18+ recommended (tested on 18/20/23)  
+2.2 **Browsers:** modern evergreen browsers; Chrome/Edge/Firefox (latest 2); Safari **16+** (iOS 16+). No IE.  
 
 > Note: the “no‑build” SPA demo may require a small HTTP server for `?schema_url=` due to browser file:// restrictions.
 
@@ -97,26 +97,26 @@ A small library that turns a **JSON Schema (Draft‑07+)** into an interactive H
 
 ✅ **Supported now**
 
-* Primitive types: `string`, `number`, `integer`, `boolean`
-* Formats: `date`, `time`, `date-time`, `email`, `uri`, `password` → mapped to HTML5 inputs when available
-* Enums (including non‑string values) with optional labels via `x-enumNames` / `x-enum-labels`
-* Objects & nested objects
-* Arrays (primitives & objects) with add/remove controls
-* `oneOf` / `anyOf` with a branch selector and **discriminator** auto‑select
-* `additionalProperties` key/value editor (add/remove)
-* Required field markers, dirty state, inline error messages
-* Validation via **Ajv 8** + `ajv-formats` on change & on submit
-* Theming via CSS variables; class prefix override; `data-field-name`/`data-field-type` attributes
-* React, Web Component, Vanilla adapters + SPA demo with `?schema` / `?schema_url` / `?debug`
+3.1 Primitive types: `string`, `number`, `integer`, `boolean`  
+3.2 Formats: `date`, `time`, `date-time`, `email`, `uri`, `password` → mapped to HTML5 inputs when available  
+3.3 Enums (including non‑string values) with optional labels via `x-enumNames` / `x-enum-labels`  
+3.4 Objects & nested objects  
+3.5 Arrays (primitives & objects) with add/remove controls  
+3.6 `oneOf` / `anyOf` with a branch selector and **discriminator** auto‑select  
+3.7 `additionalProperties` key/value editor (add/remove)  
+3.8 Required field markers, dirty state, inline error messages  
+3.9 Validation via **Ajv 8** + `ajv-formats` on change & on submit  
+3.10 Theming via CSS variables; class prefix override; `data-field-name`/`data-field-type` attributes  
+3.11 React, Web Component, Vanilla adapters + SPA demo with `?schema` / `?schema_url` / `?debug`  
 
 ⚠️ **Not yet / partial** (see [Feature matrix](#sec-16))
 
-* `allOf` merging; `if/then/else` conditionals
-* `$ref` resolution in the renderer (UI) – not yet (validation may still handle refs internally)
-* `patternProperties` UI; `uniqueItems` UI enforcement
-* Array reordering / virtualization for huge lists
-* Nullable (`type: [T, "null"]`) toggle UI
-* Auto‑focus first error on submit in Vanilla/WebC (React has a basic focus)
+3.12 `allOf` merging; `if/then/else` conditionals  
+3.13 `$ref` resolution in the renderer (UI) – not yet (validation may still handle refs internally)  
+3.14 `patternProperties` UI; `uniqueItems` UI enforcement  
+3.15 Array reordering / virtualization for huge lists  
+3.16 Nullable (`type: [T, "null"]`) toggle UI  
+3.17 Auto‑focus first error on submit in Vanilla/WebC (React has a basic focus)  
 
 ---
 
@@ -941,22 +941,24 @@ React focuses the first invalid input on submit. Vanilla/WebC will get focus+anc
 
 ## 18. Getting Help
 
-18.1 Bugs & feature requests: GitHub Issues (include schema, adapter, Node/Browser versions, minimal repro).
-18.2 Questions & ideas: GitHub Discussions.
-18.3 Security: email security\@yourdomain (avoid public issues for vulnerabilities).
+18.1 Bugs & feature requests: GitHub Issues (include schema, adapter, Node/Browser versions, minimal repro)  
+18.2 Questions & ideas: GitHub Discussions  
+18.3 Security: email security\@yourdomain (avoid public issues for vulnerabilities)  
 
 ## 19. Roadmap
 
-* `allOf` merge; `if/then/else` conditional logic
-* `$ref` / `$defs` resolution and remote fetch with caching & ETag
-* `patternProperties` UI; `uniqueItems` enforcement
-* `nullable` toggle widget
-* Keep/prune data when switching `oneOf` branches
-* Array item reorder; virtualization for very large lists
-* Web Component `::part()` styling; improved focus management and error summary links
-* Attribute level support of isRequired: true/false
-* Testing and verification of WebC usage.
-* Update to and ensure a reactive UI.
+| Prefix | Item | Priority |
+|--------|------|----------|
+| 19.1 | `allOf` merge; `if/then/else` conditional logic | High |
+| 19.2 | `$ref` / `$defs` resolution and remote fetch with caching & ETag | High |
+| 19.3 | Testing and verification of WebC usage | High |
+| 19.4 | Update to and ensure a reactive UI | High |
+| 19.5 | `patternProperties` UI; `uniqueItems` enforcement | Medium |
+| 19.6 | `nullable` toggle widget | Medium |
+| 19.7 | Keep/prune data when switching `oneOf` branches | Medium |
+| 19.8 | Array item reorder; virtualization for very large lists | Medium |
+| 19.9 | Web Component `::part()` styling; improved focus management and error summary links | Low |
+| 19.10 | Attribute level support of isRequired: true/false | Low |
 
 ---
 
