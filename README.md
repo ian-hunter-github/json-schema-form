@@ -951,6 +951,8 @@ React focuses the first invalid input on submit. Vanilla/WebC will get focus+anc
 |--------|------|-------------|----------|-------------------|----------|
 | 19.3 | Testing and verification of WebC usage | Comprehensive testing of Web Component implementation | Ensures Web Component adapter is production-ready and works across frameworks | jsf-webc | High |
 | 19.4 | Update to and ensure a reactive UI | Improve reactivity and performance of form updates | Provides smoother user experience with faster form updates | jsf-core, jsf-react, jsf-vanilla | High |
+| 19.5 | Implement accordion wrappers for Objects | Collapse Object fields when they exceed a threshold (default 3 fields) | Better UX for forms with many fields by reducing visual clutter | jsf-core, jsf-react, jsf-vanilla, jsf-webc | High |
+| 19.6 | Investigate dirty fields not showing in yellow | Fix styling issue where modified fields don't show dirty state | Ensures users can clearly see which fields they've modified | jsf-core, jsf-react, jsf-vanilla, jsf-webc | High |
 | 19.1 | `allOf` merge; `if/then/else` conditional logic | Support for JSON Schema's `allOf` keyword to merge schemas and `if/then/else` for conditional field logic | Enables more complex schema compositions and dynamic forms that change based on user input | jsf-core, jsf-react, jsf-vanilla, jsf-webc | Medium |
 | 19.2 | `$ref` / `$defs` resolution and remote fetch with caching & ETag | Support for schema references (`$ref`) both locally and remotely with proper caching | Allows splitting schemas into reusable components and loading external schema references | jsf-core, jsf-react, jsf-vanilla | Medium |
 | 19.5 | `patternProperties` UI; `uniqueItems` enforcement | Support for regex-based property patterns and unique array item validation | Enables more flexible object structures and ensures array uniqueness | jsf-core, jsf-react, jsf-vanilla | Medium |
@@ -964,12 +966,14 @@ React focuses the first invalid input on submit. Vanilla/WebC will get focus+anc
 - [19.2: Schema references](#192-ref--defs-resolution)
 - [19.3: WebC testing](#193-testing-and-verification-of-webc-usage)
 - [19.4: Reactive UI](#194-update-to-and-ensure-a-reactive-ui)
-- [19.5: Pattern properties](#195-patternproperties-ui-uniqueitems-enforcement)
-- [19.6: Nullable fields](#196-nullable-toggle-widget)
-- [19.7: Data persistence](#197-keepprune-data-when-switching-oneof-branches)
-- [19.8: Array management](#198-array-item-reorder-virtualization)
-- [19.9: WebC styling](#199-web-component-part-styling)
-- [19.10: Required attributes](#1910-attribute-level-required)
+- [19.5: Accordion wrappers](#195-implement-accordion-wrappers-for-objects)
+- [19.6: Dirty fields styling](#196-investigate-dirty-fields-not-showing-in-yellow)
+- [19.7: Pattern properties](#197-patternproperties-ui-uniqueitems-enforcement)
+- [19.8: Nullable fields](#198-nullable-toggle-widget)
+- [19.9: Data persistence](#199-keepprune-data-when-switching-oneof-branches)
+- [19.10: Array management](#1910-array-item-reorder-virtualization)
+- [19.11: WebC styling](#1911-web-component-part-styling)
+- [19.12: Required attributes](#1912-attribute-level-required)
 
 ---
 
