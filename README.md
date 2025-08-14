@@ -947,20 +947,20 @@ React focuses the first invalid input on submit. Vanilla/WebC will get focus+anc
 
 ## 19. Roadmap
 
-| Prefix | Item | Description | Benefits | Packages Affected | Priority |
-|--------|------|-------------|----------|-------------------|----------|
-| 19.3 | Testing and verification of WebC usage | Comprehensive testing of Web Component implementation | Ensures Web Component adapter is production-ready and works across frameworks | jsf-webc | High |
-| 19.4 | Update to and ensure a reactive UI | Improve reactivity and performance of form updates | Provides smoother user experience with faster form updates | jsf-core, jsf-react, jsf-vanilla | High |
-| 19.5 | Implement accordion wrappers for Objects | Collapse Object fields when they exceed a threshold (default 3 fields) | Better UX for forms with many fields by reducing visual clutter | jsf-core, jsf-react, jsf-vanilla, jsf-webc | High |
-| 19.6 | Investigate dirty fields not showing in yellow | Fix styling issue where modified fields don't show dirty state | Ensures users can clearly see which fields they've modified | jsf-core, jsf-react, jsf-vanilla, jsf-webc | High |
-| 19.1 | `allOf` merge; `if/then/else` conditional logic | Support for JSON Schema's `allOf` keyword to merge schemas and `if/then/else` for conditional field logic | Enables more complex schema compositions and dynamic forms that change based on user input | jsf-core, jsf-react, jsf-vanilla, jsf-webc | Medium |
-| 19.2 | `$ref` / `$defs` resolution and remote fetch with caching & ETag | Support for schema references (`$ref`) both locally and remotely with proper caching | Allows splitting schemas into reusable components and loading external schema references | jsf-core, jsf-react, jsf-vanilla | Medium |
-| 19.5 | `patternProperties` UI; `uniqueItems` enforcement | Support for regex-based property patterns and unique array item validation | Enables more flexible object structures and ensures array uniqueness | jsf-core, jsf-react, jsf-vanilla | Medium |
-| 19.6 | `nullable` toggle widget | UI control for fields that can be null | Better handling of optional/nullable fields in forms | jsf-core, jsf-react, jsf-vanilla, jsf-webc | Medium |
-| 19.7 | Keep/prune data when switching `oneOf` branches | Control whether data is preserved when switching between schema branches | More flexible data handling in polymorphic forms | jsf-core, jsf-react, jsf-vanilla | Medium |
-| 19.8 | Array item reorder; virtualization for very large lists | Support for reordering array items and virtual scrolling for long lists | Better UX for managing ordered lists and improved performance | jsf-react, jsf-vanilla, jsf-webc | Medium |
-| 19.9 | Web Component `::part()` styling; improved focus management and error summary links | Better styling hooks and accessibility improvements | More customizable Web Components and better accessibility | jsf-webc | Low |
-| 19.10 | Attribute level support of isRequired: true/false | Support for marking fields as required via attributes | More declarative way to specify required fields | jsf-core, jsf-react, jsf-vanilla, jsf-webc | Low |
+| Prefix | Item | Description | Benefits | Packages Affected | Priority | Progress |
+|--------|------|-------------|----------|-------------------|----------|----------|
+| 19.3 | Testing and verification of WebC usage | Comprehensive testing of Web Component implementation | Ensures Web Component adapter is production-ready and works across frameworks | jsf-webc | High | Not started |
+| 19.4 | Update to and ensure a reactive UI | Improve reactivity and performance of form updates | Provides smoother user experience with faster form updates | jsf-core, jsf-react, jsf-vanilla | High | Not started |
+| 19.5 | Implement accordion wrappers for Objects | Collapse Object fields when they exceed a threshold (default 3 fields) | Better UX for forms with many fields by reducing visual clutter | jsf-core, jsf-react, jsf-vanilla, jsf-webc | High | Not started |
+| 19.6 | Investigate dirty fields not showing in yellow | Fix styling issue where modified fields don't show dirty state | Ensures users can clearly see which fields they've modified | jsf-core, jsf-react, jsf-vanilla, jsf-webc | High | In progress |
+| 19.1 | `allOf` merge; `if/then/else` conditional logic | Support for JSON Schema's `allOf` keyword to merge schemas and `if/then/else` for conditional field logic | Enables more complex schema compositions and dynamic forms that change based on user input | jsf-core, jsf-react, jsf-vanilla, jsf-webc | Medium | Not started |
+| 19.2 | `$ref` / `$defs` resolution and remote fetch with caching & ETag | Support for schema references (`$ref`) both locally and remotely with proper caching | Allows splitting schemas into reusable components and loading external schema references | jsf-core, jsf-react, jsf-vanilla | Medium | Not started |
+| 19.5 | `patternProperties` UI; `uniqueItems` enforcement | Support for regex-based property patterns and unique array item validation | Enables more flexible object structures and ensures array uniqueness | jsf-core, jsf-react, jsf-vanilla | Medium | Not started |
+| 19.6 | `nullable` toggle widget | UI control for fields that can be null | Better handling of optional/nullable fields in forms | jsf-core, jsf-react, jsf-vanilla, jsf-webc | Medium | Not started |
+| 19.7 | Keep/prune data when switching `oneOf` branches | Control whether data is preserved when switching between schema branches | More flexible data handling in polymorphic forms | jsf-core, jsf-react, jsf-vanilla | Medium | Not started |
+| 19.8 | Array item reorder; virtualization for very large lists | Support for reordering array items and virtual scrolling for long lists | Better UX for managing ordered lists and improved performance | jsf-react, jsf-vanilla, jsf-webc | Medium | Not started |
+| 19.9 | Web Component `::part()` styling; improved focus management and error summary links | Better styling hooks and accessibility improvements | More customizable Web Components and better accessibility | jsf-webc | Low | Not started |
+| 19.10 | Attribute level support of isRequired: true/false | Support for marking fields as required via attributes | More declarative way to specify required fields | jsf-core, jsf-react, jsf-vanilla, jsf-webc | Low | Not started |
 
 - [19.1: Schema composition](#191-allof-merge-ifthenelse-conditional-logic)
 - [19.2: Schema references](#192-ref--defs-resolution)

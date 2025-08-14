@@ -224,7 +224,8 @@ export function renderJsonSchemaForm(target: HTMLElement | string, opts: Vanilla
     const t = Array.isArray(s?.type) ? s.type.find((x: any) => x !== "null") : s?.type;
     const title = (s?.title ?? (path ? path.split(".").slice(-1)[0] : "field")) || "field";
     const err = fieldError(path, errs);
-    const wrap = el("div", `${prefix("field")} ${err ? "is-error" : ""}`.trim());
+    const isDirty = engine.getState().dirty.has(path);
+    const wrap = el("div", `${prefix("field")} ${err ? "is-error" : ""} ${isDirty ? "is-dirty" : ""}`.trim());
     wrap.setAttribute("data-field-name", path);
     wrap.setAttribute("data-field-type", String(t ?? "unknown"));
 

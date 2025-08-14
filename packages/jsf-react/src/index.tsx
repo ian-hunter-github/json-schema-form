@@ -362,7 +362,8 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
     const title =
       (s?.title ?? (path ? path.split(".").slice(-1)[0] : "field")) || "field";
     const err = fieldError(path);
-    const wrapCls = [prefix("field"), err ? "is-error" : ""]
+    const isDirty = state.dirty.has(path);
+    const wrapCls = [prefix("field"), err ? "is-error" : "", isDirty ? "is-dirty" : ""]
       .filter(Boolean)
       .join(" ");
 
