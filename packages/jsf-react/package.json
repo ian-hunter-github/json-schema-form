@@ -1,6 +1,6 @@
 {
   "name": "@ianhunterpersonal/jsf-react",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "type": "module",
   "exports": {
     ".": {
@@ -23,7 +23,7 @@
     "react-dom": ">=18"
   },
   "dependencies": {
-    "@ianhunterpersonal/jsf-core": "0.0.1-beta.1"
+    "@ianhunterpersonal/jsf-core": "^0.0.1-beta.2"
   },
   "devDependencies": {
     "tsup": "^8.5.0",

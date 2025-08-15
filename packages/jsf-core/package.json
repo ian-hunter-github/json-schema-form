@@ -1,17 +1,17 @@
 {
   "name": "@ianhunterpersonal/jsf-core",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js", 
-        "require": "./dist/index.cjs"
-      }
-    },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "files": [
     "dist",
     "README.md",
