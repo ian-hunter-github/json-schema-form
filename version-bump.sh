@@ -9,11 +9,16 @@ fi
 # Parse arguments
 SHOW_HELP=false
 NEW_VERSION=""
+AUTO_CONFIRM=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -\?|-h|--help)
             SHOW_HELP=true
+            shift
+            ;;
+        -y|--yes)
+            AUTO_CONFIRM=true
             shift
             ;;
         *)
@@ -53,11 +58,13 @@ if [[ ${#PACKAGE_FILES[@]} -eq 0 ]]; then
 fi
 
 # Read all packages and their names
-declare -A PACKAGE_NAMES
+PACKAGE_NAMES=()
+PACKAGE_FILES_LIST=()
 for file in "${PACKAGE_FILES[@]}"; do
     name=$(jq -r '.name' "$file")
     if [[ -n "$name" ]]; then
-        PACKAGE_NAMES["$name"]="$file"
+        PACKAGE_NAMES+=("$name")
+        PACKAGE_FILES_LIST+=("$file")
     fi
 done
 
@@ -68,18 +75,26 @@ if [[ ! -f "$ROOT_PKG" ]]; then
     exit 1
 fi
 
-CURRENT_VERSION=$(jq -r '.version' "$ROOT_PKG")
-if [[ -z "$NEW_VERSION" ]]; then
-    # Bump patch version by default
-    IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
-    NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$((VERSION_PARTS[2] + 1))"
-elif [[ ! "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "Error: Invalid version format '$NEW_VERSION'. Use semver format (e.g. 1.2.3)"
+# Check git status first
+if ! command -v git &> /dev/null; then
+    echo "Error: git is required but not installed"
     exit 1
 fi
 
-echo "Updating all packages to version $NEW_VERSION"
-echo
+# Check local git status
+if [[ -n $(git status --porcelain) ]]; then
+    echo "Error: Git working directory is not clean. Commit or stash changes first."
+    exit 1
+fi
+
+# Check remote git status
+git fetch
+LOCAL=$(git rev-parse @)
+REMOTE=$(git rev-parse @{u})
+if [[ "$LOCAL" != "$REMOTE" ]]; then
+    echo "Error: Local branch is not in sync with remote. Pull changes first."
+    exit 1
+fi
 
 # Check if versions already exist in npm registry
 CONFLICTS=()
@@ -97,6 +112,30 @@ if [[ ${#CONFLICTS[@]} -gt 0 ]]; then
     printf ' - %s\n' "${CONFLICTS[@]}"
     echo "Aborting version bump to avoid conflicts"
     exit 1
+fi
+
+# Calculate version if not specified
+CURRENT_VERSION=$(jq -r '.version' "$ROOT_PKG")
+if [[ -z "$NEW_VERSION" ]]; then
+    # Bump patch version by default
+    IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+    NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$((VERSION_PARTS[2] + 1))"
+elif [[ ! "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Error: Invalid version format '$NEW_VERSION'. Use semver format (e.g. 1.2.3)"
+    exit 1
+fi
+
+echo "Updating all packages to version $NEW_VERSION"
+echo
+
+# Confirm with user before proceeding unless auto-confirm is set
+if ! $AUTO_CONFIRM; then
+    read -p "About to update versions to $NEW_VERSION. Continue? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Version bump cancelled"
+        exit 0
+    fi
 fi
 
 # Update versions and dependencies
@@ -119,8 +158,16 @@ for file in "${PACKAGE_FILES[@]}"; do
     for DEP_TYPE in dependencies devDependencies peerDependencies; do
         DEPS=$(jq -r ".${DEP_TYPE} // {} | keys[]" "$file" 2>/dev/null)
         for DEP in $DEPS; do
-            if [[ -n "${PACKAGE_NAMES[$DEP]}" ]]; then
-                CURRENT_DEP_VERSION=$(jq -r ".${DEP_TYPE}.\"$DEP\"" "$file")
+            # Check if dependency is in our package list
+            FOUND=false
+            for i in "${!PACKAGE_NAMES[@]}"; do
+                if [[ "${PACKAGE_NAMES[$i]}" == "$DEP" ]]; then
+                    FOUND=true
+                    CURRENT_DEP_VERSION=$(jq -r ".${DEP_TYPE}.\"$DEP\"" "$file")
+                    break
+                fi
+            done
+            if $FOUND; then
                 if [[ "$CURRENT_DEP_VERSION" != "^$NEW_VERSION" ]]; then
                     CHANGES+=("- $DIR_NAME: ${DEP_TYPE}.$DEP $CURRENT_DEP_VERSION → ^$NEW_VERSION")
                     jq --arg dep "$DEP" --arg newVersion "^$NEW_VERSION" \
