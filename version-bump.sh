@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Check if jq is installed
 if ! command -v jq &> /dev/null; then
@@ -46,11 +46,11 @@ EOF
     exit 0
 fi
 
-# Find all package.json files
+# Find package.json files (root, packages/*)
 PACKAGE_FILES=()
 while IFS= read -r -d '' file; do
     PACKAGE_FILES+=("$file")
-done < <(find . -name "package.json" -print0)
+done < <(find . packages/*  -maxdepth 1 -name "package.json" -print0)
 
 if [[ ${#PACKAGE_FILES[@]} -eq 0 ]]; then
     echo "Error: No package.json files found"
