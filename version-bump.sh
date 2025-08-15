@@ -89,6 +89,14 @@ fi
 
 # Check remote git status
 git fetch
+if ! git rev-parse --abbrev-ref @{u} &>/dev/null; then
+    echo "Error: No upstream branch configured for current branch."
+    echo "To fix this:"
+    echo "1. First set upstream: git push --set-upstream origin $(git branch --show-current)"
+    echo "2. Then pull latest changes: git pull"
+    exit 1
+fi
+
 LOCAL=$(git rev-parse @)
 REMOTE=$(git rev-parse @{u})
 if [[ "$LOCAL" != "$REMOTE" ]]; then
