@@ -155,8 +155,18 @@ for file in "${PACKAGE_FILES[@]}"; do
     # Build package
     echo "Building package..."
     cd "$(dirname "$file")" || exit 1
+    
+    # Install dependencies first
+    echo "Installing dependencies..."
+    if ! npm install; then
+        echo "Error: Dependency installation failed for $PKG_NAME"
+        exit 1
+    fi
+    
+    # Run build
     if ! npm run build; then
         echo "Error: Build failed for $PKG_NAME"
+        echo "Try running 'npm install' and 'npm run build' manually in $(dirname "$file")"
         exit 1
     fi
     
@@ -164,6 +174,7 @@ for file in "${PACKAGE_FILES[@]}"; do
     echo "Publishing to npm..."
     if ! npm publish; then
         echo "Error: Publish failed for $PKG_NAME"
+        echo "Check npm registry permissions and try again"
         exit 1
     fi
     
