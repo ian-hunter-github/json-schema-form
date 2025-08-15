@@ -30,6 +30,92 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Find package.json files (root, packages/*)
+PACKAGE_FILES=()
+while IFS= read -r -d '' file; do
+    PACKAGE_FILES+=("$file")
+done < <(find . packages/* -maxdepth 1 -name "package.json" -print0)
+
+if [[ ${#PACKAGE_FILES[@]} -eq 0 ]]; then
+    echo "Error: No package.json files found"
+    exit 1
+fi
+
+# First collect all package versions
+VERSION_MISMATCH=false
+ROOT_VERSION=""
+VERSION_PLAN=()
+HAS_INVALID_VERSIONS=false
+
+for file in "${PACKAGE_FILES[@]}"; do
+    version=$(jq -r '.version' "$file")
+    if [[ "$version" == "null" || ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+        if [[ "$file" != "./package.json" ]]; then
+            echo "Error: Invalid version '$version' in $file"
+            exit 1
+        fi
+        HAS_INVALID_VERSIONS=true
+        VERSION_PLAN+=("$file:null")
+        continue
+    fi
+    
+    VERSION_PLAN+=("$file:$version")
+    
+    # Set ROOT_VERSION from first valid package
+    if [[ -z "$ROOT_VERSION" ]]; then
+        ROOT_VERSION="$version"
+    elif [[ "$ROOT_VERSION" != "$version" ]]; then
+        VERSION_MISMATCH=true
+    fi
+done
+
+if $HAS_INVALID_VERSIONS; then
+    echo "Warning: Some packages have null/missing versions"
+fi
+
+if $VERSION_MISMATCH; then
+    echo "Warning: Package versions are not identical across the monorepo"
+fi
+
+if [[ -z "$ROOT_VERSION" ]]; then
+    echo "Error: No valid package versions found to use as base"
+    exit 1
+fi
+
+# Calculate new versions
+if [[ -z "$NEW_VERSION" ]]; then
+    # Handle version bump with optional prerelease
+    if [[ "$ROOT_VERSION" =~ ^([0-9]+\.[0-9]+\.[0-9]+)(-[a-zA-Z]+\.([0-9]+))?$ ]]; then
+        BASE_VERSION="${BASH_REMATCH[1]}"
+        PRERELEASE="${BASH_REMATCH[2]}"
+        PRERELEASE_NUM="${BASH_REMATCH[3]}"
+        
+        if [[ -n "$PRERELEASE" ]]; then
+            # Bump prerelease number
+            NEW_VERSION="${BASE_VERSION}${PRERELEASE%.*}.$((PRERELEASE_NUM + 1))"
+        else
+            # Standard patch bump
+            IFS='.' read -ra VERSION_PARTS <<< "$BASE_VERSION"
+            NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$((VERSION_PARTS[2] + 1))"
+        fi
+    else
+        echo "Error: Could not parse version '$ROOT_VERSION'"
+        exit 1
+    fi
+elif [[ ! "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+    echo "Error: Invalid version format '$NEW_VERSION'. Use semver format (e.g. 1.2.3)"
+    exit 1
+fi
+
+# Display version change plan
+echo "Version Change Plan:"
+for entry in "${VERSION_PLAN[@]}"; do
+    file="${entry%%:*}"
+    version="${entry#*:}"
+    echo "  ${file}: ${version} → $NEW_VERSION"
+done
+echo
+
 if $SHOW_HELP; then
     cat <<EOF
 Usage: ./version-bump.sh [newVersion] [options]
@@ -46,16 +132,7 @@ EOF
     exit 0
 fi
 
-# Find package.json files (root, packages/*)
-PACKAGE_FILES=()
-while IFS= read -r -d '' file; do
-    PACKAGE_FILES+=("$file")
-done < <(find . packages/*  -maxdepth 1 -name "package.json" -print0)
-
-if [[ ${#PACKAGE_FILES[@]} -eq 0 ]]; then
-    echo "Error: No package.json files found"
-    exit 1
-fi
+# Already moved to beginning of script
 
 # Read all packages and their names
 PACKAGE_NAMES=()
@@ -68,12 +145,7 @@ for file in "${PACKAGE_FILES[@]}"; do
     fi
 done
 
-# Get current version from root package
-ROOT_PKG="./package.json"
-if [[ ! -f "$ROOT_PKG" ]]; then
-    echo "Error: Could not find root package.json"
-    exit 1
-fi
+# ROOT_PKG already defined earlier
 
 # Check git status first
 if ! command -v git &> /dev/null; then
@@ -119,17 +191,6 @@ if [[ ${#CONFLICTS[@]} -gt 0 ]]; then
     echo "Error: The following package versions already exist in npm registry:"
     printf ' - %s\n' "${CONFLICTS[@]}"
     echo "Aborting version bump to avoid conflicts"
-    exit 1
-fi
-
-# Calculate version if not specified
-CURRENT_VERSION=$(jq -r '.version' "$ROOT_PKG")
-if [[ -z "$NEW_VERSION" ]]; then
-    # Bump patch version by default
-    IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
-    NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$((VERSION_PARTS[2] + 1))"
-elif [[ ! "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "Error: Invalid version format '$NEW_VERSION'. Use semver format (e.g. 1.2.3)"
     exit 1
 fi
 
