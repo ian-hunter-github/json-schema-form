@@ -132,8 +132,6 @@ EOF
     exit 0
 fi
 
-# Already moved to beginning of script
-
 # Read all packages and their names
 PACKAGE_NAMES=()
 PACKAGE_FILES_LIST=()
@@ -144,8 +142,6 @@ for file in "${PACKAGE_FILES[@]}"; do
         PACKAGE_FILES_LIST+=("$file")
     fi
 done
-
-# ROOT_PKG already defined earlier
 
 # Check git status first
 if ! command -v git &> /dev/null; then
@@ -239,8 +235,14 @@ for file in "${PACKAGE_FILES[@]}"; do
             if $FOUND; then
                 if [[ "$CURRENT_DEP_VERSION" != "^$NEW_VERSION" ]]; then
                     CHANGES+=("- $DIR_NAME: ${DEP_TYPE}.$DEP $CURRENT_DEP_VERSION → ^$NEW_VERSION")
-                    jq --arg dep "$DEP" --arg newVersion "^$NEW_VERSION" \
-                       ".${DEP_TYPE}.\$dep = \$newVersion" "$file" > "$file.tmp"
+                    # Handle both scoped and unscoped package names
+                    if [[ "$DEP" =~ @ ]]; then
+                        jq --arg newVersion "^$NEW_VERSION" \
+                           ".${DEP_TYPE}.\"$DEP\" = \$newVersion" "$file" > "$file.tmp"
+                    else
+                        jq --arg newVersion "^$NEW_VERSION" \
+                           ".${DEP_TYPE}.$DEP = \$newVersion" "$file" > "$file.tmp"
+                    fi
                     mv "$file.tmp" "$file"
                     CHANGED=true
                 fi
