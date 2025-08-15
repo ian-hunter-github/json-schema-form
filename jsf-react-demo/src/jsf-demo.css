@@ -1,6 +1,6 @@
 :root{
-  --jsf-error-bg: #fee2e2;
-  --jsf-dirty-bg: #fff7ed;
+  --jsf-error-bg: #ff0000; /* #fee2e2; */
+  --jsf-dirty-bg: #eeee1f; /*#fff7ed; */
   --jsf-input-border: #d1d5db;
   --jsf-radius: 8px;
 }

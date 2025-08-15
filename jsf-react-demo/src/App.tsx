@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import * as JSF from "@ianhunterpersonal/jsf-react";
 
-import '@ianhunterpersonal/jsf-react/styles.css';// Use whichever export the package provides:
+//import '@ianhunterpersonal/jsf-react/styles.css';// Use whichever export the package provides:
 const JsonSchemaForm: any = (JSF as any).JsonSchemaForm ?? (JSF as any).default;
 
 import "./jsf-demo.css";

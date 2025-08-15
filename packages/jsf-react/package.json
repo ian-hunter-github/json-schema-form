@@ -2,12 +2,12 @@
   "name": "@ianhunterpersonal/jsf-react",
   "version": "0.0.1-beta.3",
   "type": "module",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "require": "./dist/index.cjs"
-      },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
     "./styles.css": "./dist/styles.css",
     "./dist/index.css": "./dist/index.css"
   },

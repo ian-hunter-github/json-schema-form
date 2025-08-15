@@ -231,6 +231,8 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       const res = await onBeforeChange(ctx0);
       if (res === false) return;
     }
+    // Get original value for dirty state comparison
+    const originalValue = initialData ? getByPath(initialData, path) : undefined;
     engineRef.current.setValue(path, value);
     const st1 = engineRef.current.getState();
     const ctx1: ChangeCtx = {
@@ -240,6 +242,16 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       schema,
       ts: Date.now(),
     };
+    // If value matches original, clear dirty state
+    const isEqual = 
+      (value === originalValue) || 
+      (value === "" && originalValue === undefined) || 
+      (value === undefined && originalValue === "") ||
+      (value === null && originalValue === undefined) ||
+      (value === undefined && originalValue === null);
+    if (isEqual) {
+      st1.dirty.delete(path);
+    }
     if (onAfterChange) await onAfterChange(ctx1);
     setTick((x) => x + 1);
     runPostChange();
@@ -366,6 +378,9 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
     const wrapCls = [prefix("field"), err ? "is-error" : "", isDirty ? "is-dirty" : ""]
       .filter(Boolean)
       .join(" ");
+    const inputCls = [prefix("input"), isDirty ? "is-dirty" : ""]
+      .filter(Boolean)
+      .join(" ");
 
     // Handle const fields
     if (
@@ -461,10 +476,10 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
             {title}
             {required ? " *" : ""}
           </label>
-          <select
-            id={id}
-            className={prefix("select")}
-            value={String(idx)}
+            <select
+              id={id}
+              className={[prefix("select"), isDirty ? "is-dirty" : ""].filter(Boolean).join(" ")}
+              value={String(idx)}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setBranch(
                 path,
@@ -515,10 +530,10 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
             {title}
             {required ? " *" : ""}
           </label>
-          <select
-            id={id}
-            className={prefix("select")}
-            value={strValue}
+            <select
+              id={id}
+              className={[prefix("select"), isDirty ? "is-dirty" : ""].filter(Boolean).join(" ")}
+              value={strValue}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               let v: any = e.target.value;
               if (s.enum.some((x: any) => typeof x !== "string")) {
@@ -703,16 +718,18 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
           {required ? " *" : ""}
         </label>
         {inputType === "checkbox" ? (
-          <input
-            type="checkbox"
-            {...commonProps}
-            checked={!!value}
+            <input
+              type="checkbox"
+              {...commonProps}
+              className={inputCls}
+              checked={!!value}
             onChange={(e) => applyChange(path, e.currentTarget.checked)}
           />
         ) : (
           <input
             type={inputType}
             {...commonProps}
+            className={inputCls}
             value={value ?? ""}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const raw = e.currentTarget.value;
