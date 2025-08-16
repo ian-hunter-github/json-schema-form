@@ -257,6 +257,11 @@ for file in "${PACKAGE_FILES[@]}"; do
     fi
 done
 
+git add . ;
+git commit -m "Released $NEW_VERSION";
+git push --set-upstream origin $(git branch --show-current);
+git pull
+
 # Output summary
 if [[ ${#CHANGES[@]} -gt 0 ]]; then
     echo "Changes made:"
