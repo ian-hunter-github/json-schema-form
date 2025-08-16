@@ -1,6 +1,14 @@
 :root {
-  --jsf-error-bg: #ffe6e6;
-  --jsf-dirty-bg: #fff9db;
+  
+  input,
+  select,
+  textarea {
+    box-sizing: border-box;
+    width: 100%;
+  }
+  
+  --jsf-error-bg: #df5a21;
+  --jsf-dirty-bg: #fef9c3;
   --jsf-label-color: #333;
   --jsf-input-border: #ccc;
   --jsf-radius: 8px;
@@ -10,7 +18,10 @@
   --jsf-font-size-sm: 12px;
   --jsf-font-size-md: 14px;
   --jsf-font-size-lg: 16px;
+
 }
+
+
 .jsf-form { font-size: var(--jsf-font-size-md); }
 .jsf-field { margin-bottom: var(--jsf-spacing-lg); }
 .jsf-label { color: var(--jsf-label-color); display:block; margin-bottom: var(--jsf-spacing-sm); }
@@ -25,3 +36,27 @@
 .jsf-field.is-error { background: var(--jsf-error-bg); padding: var(--jsf-spacing-sm); border-radius: var(--jsf-radius); }
 .jsf-field.is-dirty:not(.is-error) { background: var(--jsf-dirty-bg); padding: var(--jsf-spacing-sm); border-radius: var(--jsf-radius); }
 .jsf-array-controls button { margin-right: 6px; }
+
+fieldset {
+  border-radius: var(--jsf-radius);
+  border: 1px solid var(--jsf-input-border);
+  padding: 10px;
+  margin-bottom: var(--jsf-spacing-lg);
+}
+
+fieldset legend {
+  padding: 0 4px;
+}
+
+.jsf-oneof {
+  border-radius: var(--jsf-radius);
+  border: 1px solid var(--jsf-input-border);
+  padding: 10px;
+  margin-bottom: var(--jsf-spacing-lg);
+}
+
+.jsf-oneof .jsf-input,
+.jsf-oneof .jsf-select,
+.jsf-oneof .jsf-textarea {
+  margin: var(--jsf-spacing-sm) 0;
+}

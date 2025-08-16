@@ -1,7 +1,11 @@
 import React, { useMemo } from "react";
 import * as JSF from "@ianhunterpersonal/jsf-react";
 
-//import '@ianhunterpersonal/jsf-react/styles.css';// Use whichever export the package provides:
+// Base theme with all styles
+//import '@ianhunterpersonal/jsf-react/dist/styles/theme.css';
+// Minimal theme override (colors only)
+//import '@ianhunterpersonal/jsf-react/dist/styles/theme-minimal.css';
+
 const JsonSchemaForm: any = (JSF as any).JsonSchemaForm ?? (JSF as any).default;
 
 import "./jsf-demo.css";

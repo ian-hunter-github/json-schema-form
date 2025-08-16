@@ -6,5 +6,6 @@
   --jsf-input-border: #cccccc;
   --jsf-error-color: #ff0000;
   --jsf-label-color: #333333;
+  --jsf-dirty-bg: #fef9c3;
   --jsf-radius: 0px;
 }

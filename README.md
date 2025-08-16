@@ -650,16 +650,32 @@ The library includes several built-in themes that can be used in React applicati
 - `theme.css` (original theme)
 
 #### Using Themes in React
-Import the theme CSS file in your React component:
+Import the base theme CSS file first, then any theme overrides:
 
 ```jsx
-// To use the dark theme
+// Base theme with all styles
+import '@ianhunterpersonal/jsf-react/dist/styles/theme.css';
+// Minimal theme override (colors only)
 import '@ianhunterpersonal/jsf-react/dist/styles/theme-dark.css';
 
 function App() {
   return <JsonSchemaForm schema={schema} />;
 }
 ```
+
+Theme files hierarchy:
+- `theme.css` - Base styles (required)
+- `theme-minimal.css` - Minimal color overrides
+- `theme-light.css` - Light color scheme
+- `theme-dark.css` - Dark color scheme
+
+Note: 
+1. Always import theme.css first for base styles
+2. Then import one theme override file
+3. The minimal theme overrides:
+   - Colors to black text on white background
+   - Removes rounded corners (--jsf-radius: 0px)
+   - Simplifies borders (--jsf-input-border: #cccccc)
 
 #### Using Themes in Vanilla JS
 Import the theme CSS file in your HTML:
