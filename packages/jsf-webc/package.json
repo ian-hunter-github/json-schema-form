@@ -1,6 +1,9 @@
 {
   "name": "@ianhunterpersonal/jsf-webc",
   "version": "0.0.1-beta.2",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "exports": {
     ".": {
