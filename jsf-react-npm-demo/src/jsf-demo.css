@@ -1,0 +1,55 @@
+:root {
+  --jsf-primary-color: #3b82f6;
+  --jsf-secondary-color: #9ca3af;
+  --jsf-background: #1f2937;
+  --jsf-input-border: #4b5563;
+  --jsf-error-color: #ef4444;
+  --jsf-label-color: #f3f4f6;
+  --jsf-dirty-bg: #fef9c3;
+  --jsf-radius: 8px;
+}
+
+  input,
+  select,
+  textarea {
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+.jsf-form { display:block; }
+.jsf-field { margin: 10px 0; }
+.jsf-label { display:block; margin-bottom: 4px; font-weight: 600; }
+.jsf-input, .jsf-select, .jsf-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--jsf-input-border);
+  border-radius: var(--jsf-radius);
+}
+.jsf-error { color:#b91c1c; font-size: 0.875rem; margin-top: 4px; }
+.is-error .jsf-input, .is-error .jsf-select, .is-error .jsf-textarea { background: var(--jsf-error-bg); }
+.is-dirty:not(.is-error) .jsf-input, .is-dirty:not(.is-error) .jsf-select, .is-dirty:not(.is-error) .jsf-textarea { background: var(--jsf-dirty-bg); }
+
+fieldset {
+  border-radius: var(--jsf-radius);
+  border: 1px solid var(--jsf-input-border);
+  padding: 10px;
+  margin-bottom: var(--jsf-spacing-lg);
+}
+
+fieldset legend {
+  padding: 0 4px;
+}
+
+.jsf-oneof {
+  border-radius: var(--jsf-radius);
+  border: 1px solid var(--jsf-input-border);
+  padding: 10px;
+  margin-bottom: var(--jsf-spacing-lg);
+}
+
+.jsf-oneof .jsf-input,
+.jsf-oneof .jsf-select,
+.jsf-oneof .jsf-textarea {
+  margin: var(--jsf-spacing-sm) 0;
+}
+
