@@ -1,0 +1,10 @@
+/* Minimal theme */
+:root {
+  --jsf-primary-color: #000000;
+  --jsf-secondary-color: #666666;
+  --jsf-background: #ffffff;
+  --jsf-input-border: #cccccc;
+  --jsf-error-color: #ff0000;
+  --jsf-label-color: #333333;
+  --jsf-radius: 0px;
+}

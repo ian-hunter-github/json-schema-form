@@ -9,7 +9,8 @@
       "require": "./dist/index.cjs"
     },
     "./styles.css": "./dist/styles.css",
-    "./dist/index.css": "./dist/index.css"
+    "./dist/index.css": "./dist/index.css",
+    "./dist/styles/*": "./dist/styles/*"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -30,7 +31,7 @@
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "build": "tsup src/index.tsx --dts --format esm,cjs --clean && mkdir -p dist && cp src/index.css dist/index.css"
+    "build": "tsup src/index.tsx --dts --format esm,cjs --clean && node scripts/copy-css.cjs"
   },
   "files": [
     "dist"

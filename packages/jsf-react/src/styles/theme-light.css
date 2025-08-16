@@ -1,0 +1,10 @@
+/* Light theme - default */
+:root {
+  --jsf-primary-color: #2563eb;
+  --jsf-secondary-color: #4b5563;
+  --jsf-background: #ffffff;
+  --jsf-input-border: #d1d5db;
+  --jsf-error-color: #dc2626;
+  --jsf-label-color: #111827;
+  --jsf-radius: 8px;
+}

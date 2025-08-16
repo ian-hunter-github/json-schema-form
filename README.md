@@ -42,11 +42,17 @@ This manual explains how to use and customize the JSON Schema Form generator in 
     - [8.3 Vanilla API](#83-vanilla-api)
     - [8.4 Single‑page demo (no build tools)](#84-singlepage-demo-no-build-tools)
   - [9. Styling \& theming](#9-styling--theming)
-    - [9.1 CSS variables](#91-css-variables)
+    - [9.1 Theme System Overview](#91-theme-system-overview)
+      - [Using Themes in React](#using-themes-in-react)
+      - [Using Themes in Vanilla JS](#using-themes-in-vanilla-js)
+      - [Using Themes in Web Components](#using-themes-in-web-components)
+      - [Switching Themes Dynamically](#switching-themes-dynamically)
+    - [9.2 CSS variables](#92-css-variables)
     - [9.2 Class names \& data attributes](#92-class-names--data-attributes)
     - [9.3 Web Component styling notes](#93-web-component-styling-notes)
     - [9.4 Visually hidden (sr-only) utility](#94-visually-hidden-sr-only-utility)
-    - [9.5 Example stylesheet \& usage (React/Vanilla)](#95-example-stylesheet--usage-reactvanilla)
+    - [9.6 Theme Development Tips](#96-theme-development-tips)
+    - [9.7 Example stylesheet \& usage (React/Vanilla)](#97-example-stylesheet--usage-reactvanilla)
   - [10. Validation behavior](#10-validation-behavior)
   - [11. Error handling](#11-error-handling)
   - [12. Accessibility](#12-accessibility)
@@ -635,7 +641,70 @@ open http://localhost:8080
 
 ## 9. Styling & theming
 
-### 9.1 CSS variables
+### 9.1 Theme System Overview
+The library includes several built-in themes that can be used in React applications:
+
+- `theme-light.css` (default light theme)
+- `theme-dark.css` (dark mode theme)
+- `theme-minimal.css` (minimalist theme)
+- `theme.css` (original theme)
+
+#### Using Themes in React
+Import the theme CSS file in your React component:
+
+```jsx
+// To use the dark theme
+import '@ianhunterpersonal/jsf-react/dist/styles/theme-dark.css';
+
+function App() {
+  return <JsonSchemaForm schema={schema} />;
+}
+```
+
+#### Using Themes in Vanilla JS
+Import the theme CSS file in your HTML:
+
+```html
+<link rel="stylesheet" href="node_modules/@ianhunterpersonal/jsf-vanilla/dist/styles/theme-dark.css">
+```
+
+#### Using Themes in Web Components
+Import the theme CSS file in your JavaScript:
+
+```js
+import '@ianhunterpersonal/jsf-webc/dist/styles/theme-dark.css';
+```
+
+#### Switching Themes Dynamically
+You can switch themes at runtime by conditionally importing them:
+
+```jsx
+import { useState } from 'react';
+
+function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setDarkMode(!darkMode)}>
+        Toggle Dark Mode
+      </button>
+      {darkMode ? (
+        <JsonSchemaForm schema={schema} />
+      ) : (
+        <JsonSchemaForm schema={schema} />
+      )}
+    </div>
+  );
+}
+```
+
+To create a custom theme:
+1. Add a new CSS file in `src/styles/your-theme.css`
+2. Override the CSS variables as needed
+3. The theme will be automatically included in the build
+
+### 9.2 CSS variables
 
 Global theme variables (override in `:root` or scoped container):
 
@@ -693,7 +762,12 @@ When `oneOfBranchTitleVisibility` is set to `sr-only`, inner fieldset legends ar
 }
 ```
 
-### 9.5 Example stylesheet & usage (React/Vanilla)
+### 9.6 Theme Development Tips
+- Each theme should override the CSS variables to create a distinct look
+- Keep theme files focused on variable overrides, not structural styles
+- Test themes in both light and dark mode if supporting both
+
+### 9.7 Example stylesheet & usage (React/Vanilla)
 
 A minimal, drop‑in stylesheet you can tweak or scope.
 
