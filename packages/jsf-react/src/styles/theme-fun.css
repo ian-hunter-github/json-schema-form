@@ -1,4 +1,4 @@
-/* Light theme - Blue and Light Blue */
+/* Fun theme - Blue and Yellow */
 :root {
   /* Blue scale */
   --blue-50: #EFF6FF;
@@ -12,54 +12,55 @@
   --blue-800: #1E40AF;
   --blue-900: #1E3A8A;
 
-  /* Light blue scale (secondary/accent) */
-  --lightblue-50: #F0F9FF;
-  --lightblue-100: #E0F2FE;
-  --lightblue-200: #BAE6FD;
-  --lightblue-300: #7DD3FC;
-  --lightblue-400: #38BDF8;
-  --lightblue-500: #0EA5E9;
-  --lightblue-600: #0284C7;
-  --lightblue-700: #0369A1;
-  --lightblue-800: #075985;
-  --lightblue-900: #0C4A6E;
+  /* Yellow scale */
+  --yellow-50: #FFFBEB;
+  --yellow-100: #FEF3C7;
+  --yellow-200: #FDE68A;
+  --yellow-300: #FCD34D;
+  --yellow-400: #FBBF24;
+  --yellow-500: #F59E0B;
+  --yellow-600: #D97706;
+  --yellow-700: #B45309;
+  --yellow-800: #92400E;
+  --yellow-900: #78350F;
 
-  /* Standard gray palette */
-  --gray-50: #FFFFFF;
-  --gray-100: #F9FAFB;
-  --gray-200: #F3F4F6;
-  --gray-300: #E5E7EB;
-  --gray-400: #D1D5DB;
-  --gray-500: #9CA3AF;
-  --gray-600: #6B7280;
-  --gray-700: #4B5563;
-  --gray-800: #374151;
+  /* Playful gray palette */
+  --gray-50: #FFF9F5;
+  --gray-100: #FFF0E5;
+  --gray-200: #FFE5D4;
+  --gray-300: #FFD5BC;
+  --gray-400: #FFC4A3;
+  --gray-500: #FFB38A;
+  --gray-600: #FF9E6B;
+  --gray-700: #FF884D;
+  --gray-800: #1F2937;
   --gray-900: #111827;
 
   /* Support colors */
   --green-600: #16A34A; /* success */
   --red-600: #DC2626;   /* error */
-  --yellow-600: #D97706; /* warning */
+  --pink-600: #DB2777;  /* accent */
 
   /* Semantic tokens */
-  --bg: var(--gray-50);
+  --bg: var(--yellow-50);
   --surface: #FFFFFF;
-  --surface-variant: var(--lightblue-50);
-  --text: var(--gray-900);
+  --surface-variant: var(--blue-50);
+  --text: var(--gray-800);
   --text-muted: var(--gray-600);
   --text-inverse: #FFFFFF;
   --primary: var(--blue-500);
   --primary-hover: var(--blue-600);
   --primary-active: var(--blue-700);
   --on-primary: #FFFFFF;
-  --accent: var(--lightblue-500);
-  --border-subtle: var(--gray-300);
+  --accent: var(--yellow-500);
+  --border-subtle: var(--yellow-300);
   --border-strong: var(--blue-600);
   --success: var(--green-600);
   --warning: var(--yellow-600);
   --error: var(--red-600);
   --focus-ring: var(--blue-500);
-  --focus-ring-outer: var(--lightblue-200);
+  --focus-ring-outer: var(--yellow-300);
+  --radius: 12px;
 
   /* Backward compatibility */
   --jsf-primary-color: var(--primary);
@@ -67,31 +68,33 @@
   --jsf-background: var(--bg);
   --jsf-input-border: var(--border-subtle);
   --jsf-label-color: var(--text);
+  --jsf-font-family: "Comic Sans MS", "Marker Felt", cursive;
+  --jsf-radius: var(--radius);
 }
 
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: var(--gray-900);
-    --surface: var(--gray-800);
-    --surface-variant: color-mix(in srgb, var(--lightblue-900) 20%, var(--gray-800));
-    --text: var(--gray-100);
-    --text-muted: var(--gray-400);
+    --bg: var(--blue-900);
+    --surface: var(--blue-800);
+    --surface-variant: color-mix(in srgb, var(--yellow-900) 30%, var(--blue-800));
+    --text: var(--yellow-100);
+    --text-muted: var(--yellow-300);
     --primary: var(--blue-400);
     --primary-hover: var(--blue-500);
     --primary-active: var(--blue-600);
-    --border-subtle: var(--gray-700);
-    --border-strong: var(--blue-700);
+    --border-subtle: var(--yellow-700);
+    --border-strong: var(--blue-500);
     --focus-ring: var(--blue-400);
-    --focus-ring-outer: var(--lightblue-800);
+    --focus-ring-outer: var(--yellow-600);
   }
 }
 
 /* Form components */
 fieldset {
   background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius);
   padding: 12px 14px;
 }
 
@@ -106,8 +109,8 @@ input, select, textarea {
   width: 100%;
   background: var(--surface);
   color: var(--text);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius);
   padding: 10px 12px;
   outline: none;
 }
@@ -127,10 +130,11 @@ input:focus, select:focus, textarea:focus {
 button, .btn {
   background: var(--primary);
   color: var(--on-primary);
-  border: 1px solid var(--primary);
-  border-radius: 8px;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
   padding: 10px 14px;
   cursor: pointer;
+  font-weight: bold;
 }
 button:hover { background: var(--primary-hover); }
 button:active { background: var(--primary-active); }
@@ -138,19 +142,19 @@ button:active { background: var(--primary-active); }
 .btn-outline {
   background: transparent;
   color: var(--primary);
-  border: 1px solid var(--accent);
+  border: 2px dashed var(--accent);
 }
-.btn-outline:hover { background: var(--lightblue-50); }
+.btn-outline:hover { background: var(--blue-50); }
 
 select, .section-header {
   background: var(--surface-variant);
 }
 
-.hr, hr { border: 0; border-top: 1px solid var(--border-subtle); }
+.hr, hr { border: 0; border-top: 2px dashed var(--border-subtle); }
 
 .alert-success { background: color-mix(in srgb, var(--success) 12%, var(--surface)); }
 .alert-warning { background: color-mix(in srgb, var(--warning) 12%, var(--surface)); }
 .alert-error { background: color-mix(in srgb, var(--error) 12%, var(--surface)); }
 
 a { color: var(--primary); }
-a:hover { text-decoration: underline; }
+a:hover { text-decoration: underline wavy; }

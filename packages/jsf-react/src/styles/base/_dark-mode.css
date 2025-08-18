@@ -1,0 +1,21 @@
+/* Shared dark mode implementation */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--dark-bg, var(--gray-900));
+    --surface: var(--dark-surface, var(--gray-800));
+    --surface-variant: var(--dark-surface-variant, color-mix(in srgb, var(--primary-900) 40%, var(--gray-800)));
+    --text: var(--dark-text, var(--gray-100));
+    --text-muted: var(--dark-text-muted, var(--gray-400));
+    --primary: var(--dark-primary, var(--primary-400));
+    --primary-hover: var(--dark-primary-hover, var(--primary-500));
+    --primary-active: var(--dark-primary-active, var(--primary-600));
+    --border-subtle: var(--dark-border-subtle, var(--gray-700));
+    --border-strong: var(--dark-border-strong, var(--primary-600));
+    --focus-ring: var(--dark-focus-ring, var(--primary-500));
+    --focus-ring-outer: var(--dark-focus-ring-outer, var(--primary-800));
+    
+    /* Backward compatibility */
+    --jsf-background: var(--dark-bg, var(--gray-900));
+    --jsf-label-color: var(--dark-text, var(--gray-100));
+  }
+}

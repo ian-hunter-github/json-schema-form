@@ -1,0 +1,18 @@
+/* Fun theme - playful and vibrant */
+:root {
+  --jsf-primary-color: #3b82f6;
+  --jsf-secondary-color: #f59e0b;
+  --jsf-background: #fef2f2;
+  --jsf-form-bg: #fef9c3;
+  --jsf-fieldset-bg: #fef08a;
+  --jsf-input-bg: #ffffff;
+  --jsf-section-bg: #fef3c7;
+  --jsf-input-border: #fca5a5;
+  --jsf-error-color: #ef4444;
+  --jsf-label-color: #1f2937;
+  --jsf-dirty-bg: #fef08a;
+  --jsf-radius: 10px;
+  --jsf-font-family: "Comic Sans MS", "Marker Felt", cursive;
+  --jsf-font-weight: 500;
+  --jsf-heading-font: "Fredoka One", cursive;
+}

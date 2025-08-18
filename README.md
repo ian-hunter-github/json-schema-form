@@ -43,7 +43,12 @@ This manual explains how to use and customize the JSON Schema Form generator in 
     - [8.4 Single‑page demo (no build tools)](#84-singlepage-demo-no-build-tools)
   - [9. Styling \& theming](#9-styling--theming)
     - [9.1 Theme System Overview](#91-theme-system-overview)
-      - [Using Themes in React](#using-themes-in-react)
+      - [New Theme Structure](#new-theme-structure)
+      - [Using Themes](#using-themes)
+      - [Creating Custom Themes](#creating-custom-themes)
+      - [Overriding Themes](#overriding-themes)
+      - [Dark Mode Support](#dark-mode-support)
+      - [Available Themes](#available-themes)
       - [Using Themes in Vanilla JS](#using-themes-in-vanilla-js)
       - [Using Themes in Web Components](#using-themes-in-web-components)
       - [Switching Themes Dynamically](#switching-themes-dynamically)
@@ -642,40 +647,76 @@ open http://localhost:8080
 ## 9. Styling & theming
 
 ### 9.1 Theme System Overview
-The library includes several built-in themes that can be used in React applications:
 
-- `theme-light.css` (default light theme)
-- `theme-dark.css` (dark mode theme)
-- `theme-minimal.css` (minimalist theme)
-- `theme.css` (original theme)
+The theme system has been restructured for better maintainability and customization:
 
-#### Using Themes in React
-Import the base theme CSS file first, then any theme overrides:
+#### New Theme Structure
+```
+styles/
+├── base/
+│   ├── _components.css      # All shared component styles
+│   ├── _semantic-tokens.css # Common tokens structure  
+│   ├── _dark-mode.css       # Dark mode logic
+│   └── theme.css            # Main import file
+└── themes/
+    ├── royal.css            # Only color definitions + overrides
+    ├── professional.css
+    ├── fun.css
+    └── ... (other themes)
+```
 
+#### Using Themes
 ```jsx
-// Base theme with all styles
-import '@ianhunterpersonal/jsf-react/dist/styles/theme.css';
-// Minimal theme override (colors only)
-import '@ianhunterpersonal/jsf-react/dist/styles/theme-dark.css';
+// Just import the theme you want
+import '@totnesdev/jsf-react/src/styles/themes/royal.css';
+```
 
-function App() {
-  return <JsonSchemaForm schema={schema} />;
+#### Creating Custom Themes
+1. Make a new CSS file that defines your color palette:
+```css
+/* my-theme.css */
+:root {
+  --primary-50: #FDF2F2;
+  --primary-100: #FCE8E8;
+  /* ... other color variables */
 }
 ```
 
-Theme files hierarchy:
-- `theme.css` - Base styles (required)
-- `theme-minimal.css` - Minimal color overrides
-- `theme-light.css` - Light color scheme
-- `theme-dark.css` - Dark color scheme
+2. Optionally add theme-specific styles:
+```css
+.btn {
+  /* override button styles */
+}
+```
 
-Note: 
-1. Always import theme.css first for base styles
-2. Then import one theme override file
-3. The minimal theme overrides:
-   - Colors to black text on white background
-   - Removes rounded corners (--jsf-radius: 0px)
-   - Simplifies borders (--jsf-input-border: #cccccc)
+#### Overriding Themes
+You can override specific variables in your app:
+```css
+:root {
+  --primary: #C81E1E; /* override primary color */
+  --border-radius: 4px; /* make corners less rounded */
+}
+```
+
+#### Dark Mode Support
+Themes automatically support dark mode via CSS media queries. 
+Override dark mode variables if needed:
+```css
+@media (prefers-color-scheme: dark) {
+  :root {
+    --dark-primary: #E02424;
+    /* other dark mode overrides */
+  }
+}
+```
+
+#### Available Themes
+- `royal` - Burgundy, gold and gray
+- `professional` - Blue and gray  
+- `fun` - Blue and yellow
+- `light` - Light color scheme
+- `dark` - Dark color scheme
+- `minimal` - Minimalist styling
 
 #### Using Themes in Vanilla JS
 Import the theme CSS file in your HTML:

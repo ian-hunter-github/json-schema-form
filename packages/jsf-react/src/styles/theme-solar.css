@@ -1,0 +1,177 @@
+/* Solar theme - High Contrast Black and Yellow */
+:root {
+  /* Black scale */
+  --black-50: #FFFFFF;
+  --black-100: #F5F5F5;
+  --black-200: #EEEEEE;
+  --black-300: #E0E0E0;
+  --black-400: #BDBDBD;
+  --black-500: #9E9E9E;
+  --black-600: #757575;
+  --black-700: #616161;
+  --black-800: #424242;
+  --black-900: #000000;
+
+  /* Yellow scale (secondary/accent) */
+  --yellow-50: #FFFFF0;
+  --yellow-100: #FFFFE0;
+  --yellow-200: #FFFFC0;
+  --yellow-300: #FFFFA0;
+  --yellow-400: #FFFF80;
+  --yellow-500: #FFFF00;
+  --yellow-600: #FFEE00;
+  --yellow-700: #FFDD00;
+  --yellow-800: #FFCC00;
+  --yellow-900: #FFBB00;
+
+  /* Support colors */
+  --green-600: #00FF00; /* success */
+  --red-600: #FF0000;   /* error */
+  --blue-600: #0000FF;  /* info */
+
+  /* Semantic tokens */
+  --bg: var(--yellow-50);
+  --surface: #FFFFFF;
+  --surface-variant: var(--yellow-100);
+  --text: var(--black-900);
+  --text-muted: var(--black-600);
+  --text-inverse: #FFFFFF;
+  --primary: var(--black-900);
+  --primary-hover: var(--black-800);
+  --primary-active: var(--black-700);
+  --on-primary: var(--yellow-500);
+  --accent: var(--yellow-500);
+  --border-subtle: var(--yellow-300);
+  --border-strong: var(--black-900);
+  --success: var(--green-600);
+  --warning: var(--yellow-600);
+  --error: var(--red-600);
+  --focus-ring: var(--black-900);
+  --focus-ring-outer: var(--yellow-500);
+  --radius: 4px;
+  --border-width: 2px;
+
+  /* Backward compatibility */
+  --jsf-primary-color: var(--primary);
+  --jsf-secondary-color: var(--accent);
+  --jsf-background: var(--bg);
+  --jsf-input-border: var(--border-subtle);
+  --jsf-label-color: var(--text);
+  --jsf-error-color: var(--error);
+  --jsf-radius: var(--radius);
+  --jsf-border-width: var(--border-width);
+}
+
+/* Dark mode - maintain high contrast */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--black-900);
+    --surface: var(--black-800);
+    --surface-variant: var(--black-700);
+    --text: var(--yellow-500);
+    --text-muted: var(--yellow-400);
+    --primary: var(--yellow-500);
+    --primary-hover: var(--yellow-600);
+    --primary-active: var(--yellow-700);
+    --on-primary: var(--black-900);
+    --border-subtle: var(--yellow-700);
+    --border-strong: var(--yellow-500);
+    --focus-ring: var(--yellow-500);
+    --focus-ring-outer: var(--black-900);
+  }
+}
+
+/* Form components */
+fieldset {
+  background: var(--surface);
+  border: var(--border-width) solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+legend {
+  color: var(--text);
+  padding: 0 6px;
+  font-weight: bold;
+}
+
+input, select, textarea {
+  box-sizing: border-box;
+  width: 100%;
+  background: var(--surface);
+  color: var(--text);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  outline: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow:
+    0 0 0 2px var(--focus-ring),
+    0 0 0 4px var(--focus-ring-outer);
+}
+
+[aria-invalid="true"], .is-invalid {
+  border-color: var(--error);
+  background: color-mix(in srgb, var(--error) 10%, var(--surface));
+  font-weight: bold;
+}
+
+button, .btn {
+  background: var(--primary);
+  color: var(--on-primary);
+  border: var(--border-width) solid var(--primary);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: bold;
+}
+button:hover { background: var(--primary-hover); }
+button:active { background: var(--primary-active); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: var(--border-width) solid var(--accent);
+}
+.btn-outline:hover { background: var(--yellow-100); }
+
+select, .section-header {
+  background: var(--surface-variant);
+}
+
+.hr, hr { border: 0; border-top: var(--border-width) solid var(--border-subtle); }
+
+.alert-success { 
+  background: color-mix(in srgb, var(--success) 12%, var(--surface));
+  font-weight: bold;
+}
+.alert-warning { 
+  background: color-mix(in srgb, var(--warning) 12%, var(--surface));
+  font-weight: bold;
+}
+.alert-error { 
+  background: color-mix(in srgb, var(--error) 12%, var(--surface));
+  font-weight: bold;
+}
+
+a { 
+  color: var(--primary);
+  text-decoration: underline;
+}
+a:hover { 
+  text-decoration: underline wavy;
+}
+
+/* High contrast focus styles */
+.jsf-field:focus-within {
+  outline: 3px solid var(--primary);
+}
+
+/* High contrast error styles */
+.jsf-error {
+  font-weight: bold;
+  text-decoration: underline;
+}

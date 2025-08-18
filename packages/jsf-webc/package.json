@@ -28,6 +28,6 @@
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm,cjs --clean && node ../jsf-react/scripts/copy-css.cjs"
+    "build": "tsup src/index.ts --dts --format esm,cjs --clean && ../jsf-react/scripts/copy-css.sh"
   }
 }

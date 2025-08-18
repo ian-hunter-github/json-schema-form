@@ -1,0 +1,14 @@
+/* Formal theme - elegant and professional */
+:root {
+  --jsf-primary-color: #5e548e;
+  --jsf-secondary-color: #6d6875;
+  --jsf-background: #f8f9fa;
+  --jsf-input-border: #ced4da;
+  --jsf-error-color: #c1121f;
+  --jsf-label-color: #212529;
+  --jsf-dirty-bg: #fff3bf;
+  --jsf-radius: 6px;
+  --jsf-font-family: "Georgia", serif;
+  --jsf-font-weight: 400;
+  --jsf-heading-font: "Palatino", serif;
+}

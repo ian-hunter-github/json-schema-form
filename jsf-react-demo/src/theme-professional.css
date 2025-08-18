@@ -1,0 +1,14 @@
+/* Professional theme - clean corporate style */
+:root {
+  --jsf-primary-color: #1e40af;
+  --jsf-secondary-color: #374151;
+  --jsf-background: #f9fafb;
+  --jsf-input-border: #e5e7eb;
+  --jsf-error-color: #b91c1c;
+  --jsf-label-color: #111827;
+  --jsf-dirty-bg: #dbeafe;
+  --jsf-radius: 4px;
+  --jsf-font-family: "Helvetica Neue", Arial, sans-serif;
+  --jsf-font-weight: 400;
+  --jsf-heading-font: "Roboto", sans-serif;
+}

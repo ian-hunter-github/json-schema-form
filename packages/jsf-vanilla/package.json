@@ -25,7 +25,7 @@
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm,cjs --clean && tsup src/browser.ts --format iife --global-name JSFVanilla --out-dir dist && node ../jsf-react/scripts/copy-css.cjs",
+    "build": "tsup src/index.ts --dts --format esm,cjs --clean && tsup src/browser.ts --format iife --global-name JSFVanilla --out-dir dist && ../jsf-react/scripts/copy-css.sh",
     "test": "echo 'no tests'"
   }
 }

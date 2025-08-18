@@ -9,15 +9,13 @@
       "require": "./dist/index.cjs"
     },
     "./styles.css": "./dist/styles.css",
-    "./dist/index.css": "./dist/index.css",
     "./dist/styles/*": "./dist/styles/*"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": [
-    "./dist/styles.css",
-    "dist/index.css"
+    "./dist/styles.css"
   ],
   "peerDependencies": {
     "react": ">=18",
@@ -31,7 +29,7 @@
     "typescript": "^5.5.4"
   },
   "scripts": {
-    "build": "tsup src/index.tsx --dts --format esm,cjs --clean && node scripts/copy-css.cjs"
+    "build": "tsup src/index.tsx --dts --format esm,cjs --clean && ./scripts/copy-css.sh"
   },
   "files": [
     "dist"

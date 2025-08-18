@@ -1,14 +1,12 @@
 import React, { useMemo } from "react";
 import * as JSF from "@ianhunterpersonal/jsf-react";
 
-// Base theme with all styles
-//import '@ianhunterpersonal/jsf-react/dist/styles/theme.css';
-// Minimal theme override (colors only)
-//import '@ianhunterpersonal/jsf-react/dist/styles/theme-minimal.css';
+import '../../packages/jsf-react/src/styles/theme-fun.css';
+
 
 const JsonSchemaForm: any = (JSF as any).JsonSchemaForm ?? (JSF as any).default;
 
-import "./jsf-demo.css";
+//import "./jsf-demo.css";
 
 const demoSchema = {
   $id: "react-demo",
