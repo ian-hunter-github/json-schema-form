@@ -13,6 +13,34 @@ const demoSchema = {
   type: "object",
   properties: {
     title: { type: "string", title: "Title", isRequired: true },
+    details: {
+      type: "object",
+      title: "Details",
+      properties: {
+        category: { 
+          type: "string", 
+          title: "Category",
+          enum: ["personal", "business", "education"],
+          "x-enumNames": ["Personal", "Business", "Education"]
+        },
+        status: { 
+          type: "string", 
+          title: "Status",
+          enum: ["new", "in-progress", "completed"],
+          "x-enumNames": ["New", "In Progress", "Completed"]
+        },
+        startDate: { type: "string", format: "date", title: "Start Date" },
+        endDate: { type: "string", format: "date", title: "End Date" },
+        description: { type: "string", title: "Description", format: "textarea" },
+        notes: { type: "string", title: "Additional Notes", format: "textarea" },
+        attachments: {
+          type: "array",
+          title: "Attachments",
+          items: { type: "string", format: "uri", title: "URL" }
+        }
+      },
+      required: ["category", "status", "startDate"]
+    },
     profile: {
       title: "Profile",
       oneOf: [
@@ -22,9 +50,18 @@ const demoSchema = {
           properties: {
             kind: { const: "person" },
             first: { type: "string", title: "First name" },
-            last: { type: "string", title: "Last name" }
+            last: { type: "string", title: "Last name" },
+            dob: { type: "string", format: "date", title: "Date of Birth" },
+            gender: { 
+              type: "string", 
+              title: "Gender",
+              enum: ["male", "female", "other"],
+              "x-enumNames": ["Male", "Female", "Other"]
+            },
+            occupation: { type: "string", title: "Occupation" },
+            bio: { type: "string", title: "Biography", format: "textarea" }
           },
-          required: ["kind", "first", "last"]
+          required: ["kind", "first", "last", "dob"]
         },
         {
           title: "Company",
