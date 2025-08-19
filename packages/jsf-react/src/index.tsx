@@ -1,6 +1,7 @@
 // React adapter with const visibility/tagging options
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createEngine, getByPath, sanitizeId } from "@ianhunterpersonal/jsf-core";
+import { Accordion } from "./Accordion";
 import type { JSONSchema, ValidationError } from "@ianhunterpersonal/jsf-core";
 
 type ChangeCtx = {
@@ -575,17 +576,30 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
         ? Object.keys(objVal).filter((k: string) => !(s.properties || {})[k])
         : [];
 
-      return (
-        <fieldset
-          className={wrapCls + " " + prefix("object")}
-          data-field-name={path}
-          data-field-type={"object"}
-        >
-          <legend className={prefix("label")}>
-            {title}
-            {required ? " *" : ""}
-          </legend>
+      // Check if we should use accordion
+      const shouldUseAccordion = 
+        s.properties && 
+        Object.keys(s.properties).length > 4
+        && // More than 4 fields
+        !(Array.isArray(s?.oneOf) || Array.isArray(s?.anyOf)); // Not part of oneOf
+      console.groupCollapsed(`Accordion check for ${title} (${path})`);
+      console.log('Properties count:', s.properties ? Object.keys(s.properties).length : 0);
+      console.log('Has oneOf:', Array.isArray(s?.oneOf));
+      console.log('Has anyOf:', Array.isArray(s?.anyOf));
+      console.log('Should use accordion:', shouldUseAccordion);
+      console.groupEnd();
 
+      console.log('Accordion check:', { 
+        path, 
+        title,
+        propsCount: s.properties ? Object.keys(s.properties).length : 0,
+        hasOneOf: Array.isArray(s?.oneOf),
+        hasAnyOf: Array.isArray(s?.anyOf),
+        shouldUseAccordion
+      });
+
+      const content = (
+        <>
           {Object.entries(s.properties || {}).map(([k, sub]) => (
             <React.Fragment key={k}>
               {renderField({
@@ -642,8 +656,36 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
               {err.message}
             </div>
           )}
-        </fieldset>
+        </>
       );
+
+      if (shouldUseAccordion) {
+        console.log('Rendering as Accordion for:', title);
+        return (
+          <Accordion 
+            title={title + (required ? " *" : "")}
+            defaultExpanded={true}
+            className={wrapCls}
+          >
+            {content}
+          </Accordion>
+        );
+      } else {
+        console.log('Rendering as Fieldset for:', title);
+        return (
+          <fieldset
+            className={wrapCls + " " + prefix("object")}
+            data-field-name={path}
+            data-field-type={"object"}
+          >
+            <legend className={prefix("label")}>
+              {title}
+              {required ? " *" : ""}
+            </legend>
+            {content}
+          </fieldset>
+        );
+      }
     }
 
     // Array
@@ -717,7 +759,17 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
           {title}
           {required ? " *" : ""}
         </label>
-        {inputType === "checkbox" ? (
+        {format === "textarea" ? (
+          <textarea
+            {...commonProps}
+            className={inputCls}
+            value={value ?? ""}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+              applyChange(path, e.currentTarget.value);
+            }}
+            rows={4}
+          />
+        ) : inputType === "checkbox" ? (
             <input
               type="checkbox"
               {...commonProps}

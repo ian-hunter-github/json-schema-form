@@ -1,9 +1,10 @@
 /* Shared component styles for all themes */
 fieldset {
-  background: var(--surface, #FFFFFF);
+  background: var(--surface, #ffffff);
   border: var(--border-width, 1px) solid var(--border-strong, #000);
   border-radius: var(--radius, 8px);
   padding: 12px 14px;
+  margin-bottom: 16px;
 }
 
 legend {
@@ -12,10 +13,16 @@ legend {
   font-weight: 600;
 }
 
-input, select, textarea {
+.jsf-field {
+  margin-bottom: 16px;
+}
+
+input,
+select,
+textarea {
   box-sizing: border-box;
   width: 100%;
-  background: var(--surface, #FFFFFF);
+  background: var(--surface, #ffffff);
   color: var(--text, #000);
   border: var(--border-width, 1px) solid var(--border-subtle, #ccc);
   border-radius: var(--radius, 8px);
@@ -23,58 +30,161 @@ input, select, textarea {
   outline: none;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   border-color: var(--primary, #0066cc);
-  box-shadow:
-    0 0 0 2px var(--focus-ring, rgba(0, 102, 204, 0.5)),
+  box-shadow: 0 0 0 2px var(--focus-ring, rgba(0, 102, 204, 0.5)),
     0 0 0 4px var(--focus-ring-outer, rgba(0, 102, 204, 0.2));
 }
 
-[aria-invalid="true"], .is-invalid {
+[aria-invalid="true"],
+.is-invalid {
   border-color: var(--error, #dc2626);
-  background: color-mix(in srgb, var(--error, #dc2626) 10%, var(--surface, #FFFFFF));
+  background: color-mix(
+    in srgb,
+    var(--error, #dc2626) 10%,
+    var(--surface, #ffffff)
+  );
 }
 
-button, .btn {
+button,
+.btn {
   background: var(--primary, #0066cc);
-  color: var(--on-primary, #FFFFFF);
+  color: var(--on-primary, #ffffff);
   border: var(--border-width, 1px) solid var(--primary, #0066cc);
   border-radius: var(--radius, 8px);
   padding: 10px 14px;
   cursor: pointer;
 }
-button:hover { background: var(--primary-hover, #0052a3); }
-button:active { background: var(--primary-active, #003d7a); }
+button:hover {
+  background: var(--primary-hover, #0052a3);
+}
+button:active {
+  background: var(--primary-active, #003d7a);
+}
 
 .btn-outline {
   background: transparent;
   color: var(--primary, #0066cc);
   border: var(--border-width, 1px) solid var(--accent, #0066cc);
 }
-.btn-outline:hover { background: var(--surface-variant, #f0f0f0); }
+.btn-outline:hover {
+  background: var(--surface-variant, #f0f0f0);
+}
 
-select, .section-header {
+select,
+.section-header {
   background: var(--surface-variant, #f5f5f5);
 }
 
-.hr, hr { 
-  border: 0; 
+.hr,
+hr {
+  border: 0;
   border-top: var(--border-width, 1px) solid var(--border-subtle, #ccc);
 }
 
-.alert-success { 
-  background: color-mix(in srgb, var(--success, #16a34a) 12%, var(--surface, #FFFFFF)); 
+.alert-success {
+  background: color-mix(
+    in srgb,
+    var(--success, #16a34a) 12%,
+    var(--surface, #ffffff)
+  );
 }
-.alert-warning { 
-  background: color-mix(in srgb, var(--warning, #b5942c) 12%, var(--surface, #FFFFFF)); 
+.alert-warning {
+  background: color-mix(
+    in srgb,
+    var(--warning, #b5942c) 12%,
+    var(--surface, #ffffff)
+  );
 }
-.alert-error { 
-  background: color-mix(in srgb, var(--error, #dc2626) 12%, var(--surface, #FFFFFF)); 
+.alert-error {
+  background: color-mix(
+    in srgb,
+    var(--error, #dc2626) 12%,
+    var(--surface, #ffffff)
+  );
 }
 
-a { 
-  color: var(--primary, #0066cc); 
+a {
+  color: var(--primary, #0066cc);
 }
-a:hover { 
-  text-decoration: underline; 
+a:hover {
+  text-decoration: underline;
+}
+
+/* Accordion styles */
+.jsf-accordion {
+  display: block; /* or display: flex; width: 100%; */
+  border: var(--border-width, 1px) solid var(--border-subtle, #ccc);
+  border-radius: var(--radius, 8px);
+  margin-bottom: 8px;
+  margin-top: 12px;
+  overflow: hidden; /* Ensure content doesn't overflow rounded corners */
+}
+
+.jsf-accordion-header {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--surface-variant, #f5f5f5);
+  border: none;
+  border-bottom: var(--border-width, 1px) solid var(--border-subtle, #ccc);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Spacing for accordions after fields and nested cases */
+.jsf-field + .jsf-accordion,
+.jsf-field .jsf-object > .jsf-accordion {
+  margin-top: 12px;
+}
+
+.jsf-accordion-header:hover {
+  background: var(--surface-variant-hover, #e5e5e5);
+}
+
+.jsf-accordion-title {
+  font-weight: 600;
+  color: var(--text, #000);
+}
+
+.jsf-accordion-icon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  color: transparent;
+}
+
+.jsf-accordion-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s ease;
+}
+
+.jsf-accordion-header[aria-expanded="false"] .jsf-accordion-icon::after {
+  border-left: 8px solid var(--text-secondary, #666);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+.jsf-accordion-header[aria-expanded="true"] .jsf-accordion-icon::after {
+  border-top: 8px solid var(--text-secondary, #666);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  transform: translate(-50%, -30%);
+}
+
+.jsf-accordion-content {
+  padding: 12px 14px;
+  background: var(--surface, #ffffff);
+  border-top: var(--border-width, 1px) solid var(--border-subtle, #ccc);
 }

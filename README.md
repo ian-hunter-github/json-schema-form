@@ -43,19 +43,19 @@ This manual explains how to use and customize the JSON Schema Form generator in 
     - [8.4 Single‑page demo (no build tools)](#84-singlepage-demo-no-build-tools)
   - [9. Styling \& theming](#9-styling--theming)
     - [9.1 Theme System Overview](#91-theme-system-overview)
-      - [New Theme Structure](#new-theme-structure)
-      - [Using Themes](#using-themes)
-      - [Creating Custom Themes](#creating-custom-themes)
-      - [Overriding Themes](#overriding-themes)
-      - [Dark Mode Support](#dark-mode-support)
-      - [Available Themes](#available-themes)
-      - [Using Themes in Vanilla JS](#using-themes-in-vanilla-js)
-      - [Using Themes in Web Components](#using-themes-in-web-components)
-      - [Switching Themes Dynamically](#switching-themes-dynamically)
+      - [9.1.1 New Theme Structure](#911-new-theme-structure)
+      - [9.1.2 Using Themes](#912-using-themes)
+      - [9.1.3 Creating Custom Themes](#913-creating-custom-themes)
+      - [9.1.4 Overriding Themes](#914-overriding-themes)
+      - [9.1.5 Dark Mode Support](#915-dark-mode-support)
+      - [9.1.6 Available Themes](#916-available-themes)
+      - [9.1.7 Using Themes in Vanilla JS](#917-using-themes-in-vanilla-js)
+      - [9.1.8 Using Themes in Web Components](#918-using-themes-in-web-components)
+      - [9.1.9 Switching Themes Dynamically](#919-switching-themes-dynamically)
     - [9.2 CSS variables](#92-css-variables)
-    - [9.2 Class names \& data attributes](#92-class-names--data-attributes)
-    - [9.3 Web Component styling notes](#93-web-component-styling-notes)
-    - [9.4 Visually hidden (sr-only) utility](#94-visually-hidden-sr-only-utility)
+    - [9.3 Class names \& data attributes](#93-class-names--data-attributes)
+    - [9.4 Web Component styling notes](#94-web-component-styling-notes)
+    - [9.5 Visually hidden (sr-only) utility](#95-visually-hidden-sr-only-utility)
     - [9.6 Theme Development Tips](#96-theme-development-tips)
     - [9.7 Example stylesheet \& usage (React/Vanilla)](#97-example-stylesheet--usage-reactvanilla)
   - [10. Validation behavior](#10-validation-behavior)
@@ -650,7 +650,7 @@ open http://localhost:8080
 
 The theme system has been restructured for better maintainability and customization:
 
-#### New Theme Structure
+#### 9.1.1 New Theme Structure
 ```
 styles/
 ├── base/
@@ -665,13 +665,13 @@ styles/
     └── ... (other themes)
 ```
 
-#### Using Themes
+#### 9.1.2 Using Themes
 ```jsx
 // Just import the theme you want
 import '@totnesdev/jsf-react/src/styles/themes/royal.css';
 ```
 
-#### Creating Custom Themes
+#### 9.1.3 Creating Custom Themes
 1. Make a new CSS file that defines your color palette:
 ```css
 /* my-theme.css */
@@ -689,7 +689,7 @@ import '@totnesdev/jsf-react/src/styles/themes/royal.css';
 }
 ```
 
-#### Overriding Themes
+#### 9.1.4 Overriding Themes
 You can override specific variables in your app:
 ```css
 :root {
@@ -698,7 +698,7 @@ You can override specific variables in your app:
 }
 ```
 
-#### Dark Mode Support
+#### 9.1.5 Dark Mode Support
 Themes automatically support dark mode via CSS media queries. 
 Override dark mode variables if needed:
 ```css
@@ -710,7 +710,7 @@ Override dark mode variables if needed:
 }
 ```
 
-#### Available Themes
+#### 9.1.6 Available Themes
 - `royal` - Burgundy, gold and gray
 - `professional` - Blue and gray  
 - `fun` - Blue and yellow
@@ -718,21 +718,21 @@ Override dark mode variables if needed:
 - `dark` - Dark color scheme
 - `minimal` - Minimalist styling
 
-#### Using Themes in Vanilla JS
+#### 9.1.7 Using Themes in Vanilla JS
 Import the theme CSS file in your HTML:
 
 ```html
 <link rel="stylesheet" href="node_modules/@ianhunterpersonal/jsf-vanilla/dist/styles/theme-dark.css">
 ```
 
-#### Using Themes in Web Components
+#### 9.1.8 Using Themes in Web Components
 Import the theme CSS file in your JavaScript:
 
 ```js
 import '@ianhunterpersonal/jsf-webc/dist/styles/theme-dark.css';
 ```
 
-#### Switching Themes Dynamically
+#### 9.1.9 Switching Themes Dynamically
 You can switch themes at runtime by conditionally importing them:
 
 ```jsx
@@ -773,7 +773,7 @@ Global theme variables (override in `:root` or scoped container):
 * `--jsf-spacing-sm`, `--jsf-spacing-md`, `--jsf-spacing-lg`
 * `--jsf-font-size-sm`, `--jsf-font-size-md`, `--jsf-font-size-lg`
 
-### 9.2 Class names & data attributes
+### 9.3 Class names & data attributes
 
 * Structural classes (prefixed by `classNamePrefix`, default `jsf-`):
 
@@ -794,14 +794,14 @@ Global theme variables (override in `:root` or scoped container):
 [data-field-name="priority"] .jsf-select { background: #fff7ed; }
 ```
 
-### 9.3 Web Component styling notes
+### 9.4 Web Component styling notes
 
 > **WebC status:** Not usable in this beta. Styling notes refer to a future release.
 
 * The Web Component renders inside Shadow DOM. For now, **use CSS variables** to theme.
 * `::part(...)` hooks for `field|label|input|error` are planned but not yet exposed.
 
-### 9.4 Visually hidden (sr-only) utility
+### 9.5 Visually hidden (sr-only) utility
 
 When `oneOfBranchTitleVisibility` is set to `sr-only`, inner fieldset legends are visually hidden but kept accessible. If you prefer a reusable class, add this CSS and we’ll apply `class="sr-only"` in your wrapper:
 
