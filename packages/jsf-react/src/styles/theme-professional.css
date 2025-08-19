@@ -1,4 +1,5 @@
 /* Professional theme - Blue and Gray */
+@import './theme.css';
 :root {
   /* Blue scale */
   --blue-50: #EFF6FF;

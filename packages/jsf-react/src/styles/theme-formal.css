@@ -1,4 +1,5 @@
 /* Formal theme - Purple and Teal */
+@import './theme.css';
 :root {
   /* Purple scale */
   --purple-50: #F5F3FF;

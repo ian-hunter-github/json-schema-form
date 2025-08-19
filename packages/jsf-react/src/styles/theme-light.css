@@ -1,4 +1,5 @@
 /* Light theme - Blue and Light Blue */
+@import './theme.css';
 :root {
   /* Blue scale */
   --blue-50: #EFF6FF;

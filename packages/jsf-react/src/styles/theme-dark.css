@@ -1,4 +1,5 @@
 /* Dark theme - Purple and Gray */
+@import './theme.css';
 :root {
   /* Purple scale */
   --purple-50: #2E1065;

@@ -1,4 +1,5 @@
 /* Minimal theme - Black and Gray */
+@import './theme.css';
 :root {
   /* Black scale */
   --black-50: #FAFAFA;
