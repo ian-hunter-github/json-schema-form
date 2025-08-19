@@ -1,6 +1,6 @@
 {
   "name": "@ianhunterpersonal/jsf-webc",
-  "version": "0.0.1-beta.5",
+  "version": "0.0.1-beta.6",
   "publishConfig": {
     "access": "public"
   },
@@ -21,7 +21,7 @@
     "./dist/styles/*"
   ],
   "dependencies": {
-    "@ianhunterpersonal/jsf-vanilla": "^0.0.1-beta.5"
+    "@ianhunterpersonal/jsf-vanilla": "^0.0.1-beta.6"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
