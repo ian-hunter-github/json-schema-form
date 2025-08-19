@@ -29,7 +29,7 @@ export const Accordion: React.FC<AccordionProps> = ({
             __html: isExpanded ? "&#9658;" : "&#9660;",
           }}
         />
-        <span className="jsf-accordion-title"> {title} X</span>
+        <span className="jsf-accordion-title"> {title}</span>
       </button>
       <div className="jsf-accordion-content" hidden={!isExpanded}>
         {children}
