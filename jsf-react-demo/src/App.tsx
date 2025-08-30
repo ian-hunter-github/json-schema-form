@@ -1,15 +1,12 @@
 import React, { useMemo, useState } from "react";
 import * as JSF from "@ianhunterpersonal/jsf-react";
-import { applyDefaults } from "@ianhunterpersonal/jsf-core";
 import JsonDisplay from "./JsonDisplay";
 
-import '../../packages/jsf-react/src/styles/theme-fun.css';
+import '@ianhunterpersonal/jsf-react/dist/styles/theme-professional.css';
 import './App.css';
 
 
 const JsonSchemaForm: any = (JSF as any).JsonSchemaForm ?? (JSF as any).default;
-
-//import "./jsf-demo.css";
 
 const demoSchema = {
   $id: "react-demo",
@@ -155,7 +152,7 @@ export default function App() {
   const [formData, setFormData] = useState<any>({});
 
   // Generate initial data with defaults from schema
-  const initialData = useMemo(() => applyDefaults(schema, {}), [schema]);
+  const initialData = useMemo(() => ({}), [schema]);
 
   const handleFormChange = (data: any) => {
     setFormData(data);
