@@ -87,4 +87,17 @@ export function clone<T>(v: T): T {
   return structuredClone(v);
 }
 
+export function hasDataInContainer(obj: any, path: string): boolean {
+  const containerData = getByPath(obj, path);
+  if (!containerData || typeof containerData !== 'object') {
+    return false;
+  }
+  
+  // Check if there are any non-empty properties
+  return Object.keys(containerData).some(key => {
+    const value = containerData[key];
+    return value !== undefined && value !== null && value !== '';
+  });
+}
+
 export { deepEqual };

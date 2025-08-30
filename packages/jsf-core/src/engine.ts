@@ -1,6 +1,6 @@
 import Ajv, { ErrorObject } from "ajv";
 import addFormats from "ajv-formats";
-import { applyDefaults, clone, getByPath, setByPath } from "./utils";
+import { applyDefaults, clone, getByPath, setByPath, hasDataInContainer } from "./utils";
 import type { Engine, EngineOptions, FormState, JSONSchema, Path, ValidationError } from "./types";
 
 type CacheKey = string;
@@ -41,6 +41,7 @@ export function createEngine(schema: JSONSchema, initialData: any = {}, opts: En
   let _schema = schema;
   const ajv = makeAjv(_schema);
   const validateRoot = ajv.compile(_schema);
+  const { keepDataOnOneOfSwitch = false } = opts;
 
   const state: FormState = {
     data: applyDefaults(_schema, clone(initialData)),
@@ -84,6 +85,32 @@ export function createEngine(schema: JSONSchema, initialData: any = {}, opts: En
   }
 
   function setActiveBranch(containerPath: Path, index: number) {
+    const currentIndex = state.activeOneOf[containerPath] ?? -1;
+    
+    // Only clear data if we're actually switching to a different branch
+    // and keepDataOnOneOfSwitch is false
+    if (currentIndex !== index && !keepDataOnOneOfSwitch) {
+      // Clear data at the container path
+      const nextData = clone(state.data);
+      const containerData = getByPath(nextData, containerPath);
+      
+      if (containerData && typeof containerData === 'object') {
+        // Clear all properties at the container path
+        Object.keys(containerData).forEach(key => {
+          delete containerData[key];
+        });
+        state.data = nextData;
+        
+        // Also clear dirty state for all paths under this container
+        const prefix = containerPath ? `${containerPath}.` : '';
+        state.dirty.forEach(path => {
+          if (path.startsWith(prefix)) {
+            state.dirty.delete(path);
+          }
+        });
+      }
+    }
+    
     state.activeOneOf[containerPath] = index;
     validate();
   }
@@ -110,6 +137,10 @@ export function createEngine(schema: JSONSchema, initialData: any = {}, opts: En
     validate();
   }
 
+  function hasDataInOneOfContainer(containerPath: Path): boolean {
+    return hasDataInContainer(state.data, containerPath);
+  }
+
   validate();
-  return { getState, setValue, addArrayItem, removeArrayItem, setActiveBranch, validate, getErrors, getSchema, setSchema, reset };
+  return { getState, setValue, addArrayItem, removeArrayItem, setActiveBranch, validate, getErrors, getSchema, setSchema, reset, hasDataInOneOfContainer };
 }

@@ -4,6 +4,71 @@ import { createEngine, getByPath, sanitizeId } from "@ianhunterpersonal/jsf-core
 import { Accordion } from "./Accordion";
 import type { JSONSchema, ValidationError } from "@ianhunterpersonal/jsf-core";
 
+// Confirmation Dialog Component
+const ConfirmationDialog: React.FC<{
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}> = ({ isOpen, title, message, onConfirm, onCancel }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        padding: '20px',
+        borderRadius: '8px',
+        maxWidth: '400px',
+        width: '90%',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      }}>
+        <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>{title}</h3>
+        <p style={{ margin: '0 0 20px 0', lineHeight: '1.5' }}>{message}</p>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+          <button
+            onClick={onCancel}
+            style={{
+              padding: '8px 16px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              background: 'white',
+              cursor: 'pointer',
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            style={{
+              padding: '8px 16px',
+              border: 'none',
+              borderRadius: '4px',
+              background: '#dc3545',
+              color: 'white',
+              cursor: 'pointer',
+            }}
+          >
+            Yes, Clear Data
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 type ChangeCtx = {
   path: string;
   value: any;
@@ -151,6 +216,19 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
   const schedule = useDebounced(debounceMs);
   const prefix = (c: string) => classNamePrefix + c;
 
+  // State for confirmation dialog
+  const [confirmationDialog, setConfirmationDialog] = useState<{
+    isOpen: boolean;
+    path: string;
+    index: number;
+    branchSchema: any;
+  }>({
+    isOpen: false,
+    path: '',
+    index: -1,
+    branchSchema: null,
+  });
+
   // Track const paths seen during render for error suppression
   const constPathsRef = useRef<Set<string>>(new Set());
   // Paths of discriminator const fields to hide (e.g. profile.kind)
@@ -172,6 +250,13 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
     if (firstMount.current && initialData !== undefined) {
       engineRef.current.reset(initialData);
       firstMount.current = false;
+      // Trigger initial evaluation after resetting with initial data
+      if (onChange) {
+        // Use a small delay to ensure the reset is complete
+        setTimeout(() => {
+          runPostChange();
+        }, 0);
+      }
     }
   }, [initialData]);
 
@@ -275,6 +360,36 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
   };
 
   const setBranch = async (path: string, index: number, branchSchema: any) => {
+    const currentIndex = state.activeOneOf[path] ?? -1;
+    
+    // Only show confirmation if we're switching to a different branch
+    // and there's existing data in the container
+    if (currentIndex !== index && engineRef.current.hasDataInOneOfContainer(path)) {
+      // Show confirmation dialog
+      setConfirmationDialog({
+        isOpen: true,
+        path,
+        index,
+        branchSchema
+      });
+      return;
+    }
+    
+    // If no data or same branch, proceed with the switch
+    await performBranchSwitch(path, index, branchSchema);
+  };
+
+  const handleConfirmSwitch = async () => {
+    const { path, index, branchSchema } = confirmationDialog;
+    await performBranchSwitch(path, index, branchSchema);
+    setConfirmationDialog({ isOpen: false, path: '', index: -1, branchSchema: null });
+  };
+
+  const handleCancelSwitch = () => {
+    setConfirmationDialog({ isOpen: false, path: '', index: -1, branchSchema: null });
+  };
+
+  const performBranchSwitch = async (path: string, index: number, branchSchema: any) => {
     engineRef.current.setActiveBranch(path, index);
     applyConstTagsForBranch(
       engineRef.current,
@@ -897,6 +1012,15 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
           )}
         </pre>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={confirmationDialog.isOpen}
+        title="Clear Data?"
+        message="Switching to a different variant will clear the current data. Do you want to continue?"
+        onConfirm={handleConfirmSwitch}
+        onCancel={handleCancelSwitch}
+      />
     </form>
   );
 };

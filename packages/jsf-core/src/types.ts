@@ -33,4 +33,5 @@ export interface Engine {
   getSchema(): JSONSchema;
   setSchema(schema: JSONSchema): void;
   reset(data?: any): void;
+  hasDataInOneOfContainer(containerPath: Path): boolean;
 }

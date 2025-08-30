@@ -1,7 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import * as JSF from "@ianhunterpersonal/jsf-react";
+import { applyDefaults } from "@ianhunterpersonal/jsf-core";
+import JsonDisplay from "./JsonDisplay";
 
 import '../../packages/jsf-react/src/styles/theme-fun.css';
+import './App.css';
 
 
 const JsonSchemaForm: any = (JSF as any).JsonSchemaForm ?? (JSF as any).default;
@@ -149,32 +152,50 @@ const demoSchema = {
 
 export default function App() {
   const schema = useMemo(() => demoSchema, []);
+  const [formData, setFormData] = useState<any>({});
+
+  // Generate initial data with defaults from schema
+  const initialData = useMemo(() => applyDefaults(schema, {}), [schema]);
+
+  const handleFormChange = (data: any) => {
+    setFormData(data);
+  };
 
   return (
-    <div style={{ maxWidth: 780, margin: "40px auto", padding: "0 16px" }}>
-      <h1 style={{ marginBottom: 8 }}>@ianhunterpersonal/jsf-react — Demo</h1>
-      <p style={{ color: "#555", marginTop: 0 }}>
-        Top-level & nested <code>oneOf</code>, enum, arrays (incl. array of objects), and <code>additionalProperties</code>.
-      </p>
+    <div className="split-pane">
+      <div className="pane left-pane">
+        <div className="form-container">
+          <h1 style={{ marginBottom: 8 }}>@ianhunterpersonal/jsf-react — Demo</h1>
+          <p style={{ color: "#555", marginTop: 0 }}>
+            Top-level & nested <code>oneOf</code>, enum, arrays (incl. array of objects), and <code>additionalProperties</code>.
+          </p>
 
-      <JsonSchemaForm
-        schema={schema}
-        constVisibility="hidden"
-        autoConstTagging={true}
-        constErrorStrategy="suppress-when-managed"
-        oneOfBranchTitleVisibility="hidden"
-        oneOfBranchShowDescription={true}
-        onSubmit={(data: any) => {
-          alert("Submitted data:\\n" + JSON.stringify(data, null, 2));
-        }}
-        transformError={(e: any) => {
-          if (e.keyword === "format" && e.path.endsWith("email")) {
-            return { ...e, message: "Please enter a valid email address" };
-          }
-          return e;
-        }}
-        showReset
-      />
+          <JsonSchemaForm
+            schema={schema}
+            initialData={initialData}
+            constVisibility="hidden"
+            autoConstTagging={true}
+            constErrorStrategy="suppress-when-managed"
+            oneOfBranchTitleVisibility="hidden"
+            oneOfBranchShowDescription={true}
+            onSubmit={(data: any) => {
+              alert("Submitted data:\\n" + JSON.stringify(data, null, 2));
+            }}
+            transformError={(e: any) => {
+              if (e.keyword === "format" && e.path.endsWith("email")) {
+                return { ...e, message: "Please enter a valid email address" };
+              }
+              return e;
+            }}
+            showReset
+            onChange={handleFormChange}
+          />
+        </div>
+      </div>
+      
+      <div className="pane right-pane">
+        <JsonDisplay data={formData} />
+      </div>
     </div>
   );
 }
