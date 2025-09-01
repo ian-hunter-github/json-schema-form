@@ -37,6 +37,8 @@
   /* Support colors */
   --success: var(--success, #16A34A);
   --error: var(--error, #DC2626);
+  --error-hover: var(--error-hover, #B91C1C);
+  --error-active: var(--error-active, #991B1B);
   --warning: var(--warning, #B5942C);
   --info: var(--info, #2563EB);
 

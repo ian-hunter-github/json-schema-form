@@ -15,51 +15,22 @@ const ConfirmationDialog: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '8px',
-        maxWidth: '400px',
-        width: '90%',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      }}>
-        <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>{title}</h3>
-        <p style={{ margin: '0 0 20px 0', lineHeight: '1.5' }}>{message}</p>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+    <div className="jsf-confirmation-dialog-overlay">
+      <div className="jsf-confirmation-dialog">
+        <h3 className="jsf-confirmation-dialog-title">{title}</h3>
+        <p className="jsf-confirmation-dialog-message">{message}</p>
+        <div className="jsf-confirmation-dialog-actions">
           <button
+            type="button"
+            className="jsf-confirmation-dialog-button jsf-confirmation-dialog-button--cancel"
             onClick={onCancel}
-            style={{
-              padding: '8px 16px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              background: 'white',
-              cursor: 'pointer',
-            }}
           >
             Cancel
           </button>
           <button
+            type="button"
+            className="jsf-confirmation-dialog-button jsf-confirmation-dialog-button--confirm"
             onClick={onConfirm}
-            style={{
-              padding: '8px 16px',
-              border: 'none',
-              borderRadius: '4px',
-              background: '#dc3545',
-              color: 'white',
-              cursor: 'pointer',
-            }}
           >
             Yes, Clear Data
           </button>
@@ -477,11 +448,17 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
   const fieldError = (path: string) => errors.find((e) => e.path === path);
 
   // ---------- PURE RENDER FUNCTION (not a component) ----------
-  type RFProps = { schema: any; path: string; required: boolean };
+  type RFProps = { 
+    schema: any; 
+    path: string; 
+    required: boolean;
+    isOneOfBranch?: boolean; // New prop to indicate if this is a oneOf branch
+  };
   const renderField = ({
     schema: s,
     path,
     required,
+    isOneOfBranch = false,
   }: RFProps): JSX.Element | null => {
     const t = Array.isArray(s?.type)
       ? s.type.find((x: any) => x !== "null")
@@ -611,7 +588,7 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
             ))}
           </select>
           <div className={prefix("object")}>
-            {renderField({ schema: group[idx], path, required })}
+            {renderField({ schema: group[idx], path, required, isOneOfBranch: true })}
           </div>
           {err && (
             <div className={prefix("error")} id={id + "-err"}>
@@ -697,21 +674,6 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
         Object.keys(s.properties).length > 4
         && // More than 4 fields
         !(Array.isArray(s?.oneOf) || Array.isArray(s?.anyOf)); // Not part of oneOf
-      console.groupCollapsed(`Accordion check for ${title} (${path})`);
-      console.log('Properties count:', s.properties ? Object.keys(s.properties).length : 0);
-      console.log('Has oneOf:', Array.isArray(s?.oneOf));
-      console.log('Has anyOf:', Array.isArray(s?.anyOf));
-      console.log('Should use accordion:', shouldUseAccordion);
-      console.groupEnd();
-
-      console.log('Accordion check:', { 
-        path, 
-        title,
-        propsCount: s.properties ? Object.keys(s.properties).length : 0,
-        hasOneOf: Array.isArray(s?.oneOf),
-        hasAnyOf: Array.isArray(s?.anyOf),
-        shouldUseAccordion
-      });
 
       const content = (
         <>
@@ -774,8 +736,16 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
         </>
       );
 
+      // If this is a oneOf branch, don't render the header - just the content
+      if (isOneOfBranch) {
+        return (
+          <div className={wrapCls + " " + prefix("object")}>
+            {content}
+          </div>
+        );
+      }
+
       if (shouldUseAccordion) {
-        console.log('Rendering as Accordion for:', title);
         return (
           <Accordion 
             title={title + (required ? " *" : "")}
@@ -786,7 +756,6 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
           </Accordion>
         );
       } else {
-        console.log('Rendering as Fieldset for:', title);
         return (
           <fieldset
             className={wrapCls + " " + prefix("object")}

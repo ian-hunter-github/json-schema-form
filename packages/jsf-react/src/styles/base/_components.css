@@ -188,3 +188,127 @@ a:hover {
   background: var(--surface, #ffffff);
   border-top: var(--border-width, 1px) solid var(--border-subtle, #ccc);
 }
+
+/* OneOf Styles */
+.jsf-field[data-field-type="oneOf"] {
+  margin-bottom: 24px;
+}
+
+.jsf-field[data-field-type="oneOf"] .jsf-object {
+  margin-top: 12px;
+  margin-left: 15px;
+  padding-left: 12px;
+  border-left: 2px solid var(--border-subtle, #e5e5e5);
+}
+
+.jsf-field[data-field-type="oneOf"] .jsf-select {
+  margin-bottom: 8px;
+}
+
+/* Confirmation Dialog Styles */
+.jsf-confirmation-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: jsf-dialog-fade-in 0.2s ease-out;
+}
+
+.jsf-confirmation-dialog {
+  background-color: var(--surface, #ffffff);
+  padding: 24px;
+  border-radius: var(--radius-lg, 12px);
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.1);
+  animation: jsf-dialog-slide-up 0.3s ease-out;
+}
+
+.jsf-confirmation-dialog-title {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text, #000000);
+  line-height: 1.4;
+}
+
+.jsf-confirmation-dialog-message {
+  margin: 0 0 24px 0;
+  color: var(--text-muted, #666666);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.jsf-confirmation-dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.jsf-confirmation-dialog-button {
+  padding: 10px 20px;
+  border: var(--border-width, 1px) solid transparent;
+  border-radius: var(--radius, 8px);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.jsf-confirmation-dialog-button--cancel {
+  background-color: transparent;
+  color: var(--text-muted, #666666);
+  border-color: var(--border-subtle, #cccccc);
+}
+
+.jsf-confirmation-dialog-button--cancel:hover {
+  background-color: var(--surface-variant, #f5f5f5);
+  border-color: var(--border-strong, #999999);
+}
+
+.jsf-confirmation-dialog-button--cancel:active {
+  background-color: var(--gray-200, #e5e5e5);
+}
+
+.jsf-confirmation-dialog-button--confirm {
+  background-color: var(--error, #dc2626);
+  color: var(--on-primary, #ffffff);
+  border-color: var(--error, #dc2626);
+}
+
+.jsf-confirmation-dialog-button--confirm:hover {
+  background-color: var(--error-hover, #b91c1c);
+  border-color: var(--error-hover, #b91c1c);
+}
+
+.jsf-confirmation-dialog-button--confirm:active {
+  background-color: var(--error-active, #991b1b);
+  border-color: var(--error-active, #991b1b);
+}
+
+@keyframes jsf-dialog-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes jsf-dialog-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

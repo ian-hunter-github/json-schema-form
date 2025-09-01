@@ -18,6 +18,12 @@ function makeAjv(schema: JSONSchema): Ajv {
   });
   addFormats(ajv);
 
+  // Add custom formats to prevent AJV warnings
+  // These are UI-specific formats that shouldn't trigger validation errors
+  ajv.addFormat("textarea", true); // Always validate as true for textarea format
+  ajv.addFormat("uri-reference", true); // Common format that might be used
+  ajv.addFormat("data-url", true); // Common format that might be used
+
   // Whitelist vendor/interop keywords so strict mode never complains if toggled later
   ["x-enumNames", "x-enum-labels", "discriminator"].forEach((k) => {
     try { (ajv as any).addKeyword(k); } catch {}
@@ -29,6 +35,9 @@ function makeAjv(schema: JSONSchema): Ajv {
 
 function mapErrors(errs: ErrorObject[] | null | undefined): ValidationError[] {
   if (!errs) return [];
+
+  errs = errs.filter(e => e.message && (e.message.includes("must match exactly one schema in oneOf") === false)); // Filter out unecessary oneOf errors
+
   return errs.map(e => {
     const path = (e.instancePath || "").replace(/^\//, "").replace(/\//g, ".").replace(/\[(\d+)\]/g, ".$1");
     const missing = (e.params as any)?.missingProperty;
