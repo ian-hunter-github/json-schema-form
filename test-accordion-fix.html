@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accordion Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Accordion Fix Test</h1>
+    <p>This test verifies that the checkShouldUseAccordion() function is now called for oneOf branches.</p>
+    
+    <div id="test-results">
+        <div class="test-result">
+            <h3>Test 1: Person Branch (should use accordion)</h3>
+            <p>Properties: first, last, dob, gender, occupation, bio (6 properties)</p>
+            <p>Expected: Accordion should be used (maxProperties >= 3)</p>
+            <p id="test1-result">Running test...</p>
+        </div>
+        
+        <div class="test-result">
+            <h3>Test 2: Company Branch (should NOT use accordion)</h3>
+            <p>Properties: kind, company (2 properties)</p>
+            <p>Expected: Accordion should NOT be used (maxProperties < 3)</p>
+            <p id="test2-result">Running test...</p>
+        </div>
+    </div>
+
+    <script>
+        // Mock the checkShouldUseAccordion function for testing
+        function checkShouldUseAccordion(schema) {
+            console.log("checkShouldUseAccordion called for:", schema.title);
+            
+            // Check if this is a oneOf/anyOf schema
+            const isOneOf = Array.isArray(schema?.oneOf) || Array.isArray(schema?.anyOf);
+            
+            if (isOneOf) {
+                // For oneOf schemas, check the maximum number of properties in any branch
+                const group = schema.oneOf || schema.anyOf;
+                let maxProperties = 0;
+                
+                for (const branch of group) {
+                    if (branch?.properties) {
+                        const branchPropertyCount = Object.keys(branch.properties).length;
+                        maxProperties = Math.max(maxProperties, branchPropertyCount);
+                    }
+                }
+                
+                console.log("oneOf analysis:", { maxProperties, branches: group.length });
+                
+                // Use accordion if any branch has 3 or more properties
+                return maxProperties >= 3;
+            } else if (schema?.properties) {
+                // For regular objects, use accordion if there are 3 or more properties
+                const propertyCount = Object.keys(schema.properties).length;
+                console.log("regular object analysis:", { propertyCount });
+                return propertyCount >= 3;
+            }
+            
+            return false;
+        }
+
+        // Test schemas
+        const personSchema = {
+            title: "Person",
+            type: "object",
+            properties: {
+                kind: { const: "person" },
+                first: { type: "string", title: "First name" },
+                last: { type: "string", title: "Last name" },
+                dob: { type: "string", format: "date", title: "Date of Birth" },
+                gender: { type: "string", title: "Gender" },
+                occupation: { type: "string", title: "Occupation" },
+                bio: { type: "string", title: "Biography", format: "textarea" }
+            }
+        };
+
+        const companySchema = {
+            title: "Company",
+            type: "object",
+            properties: {
+                kind: { const: "company" },
+                company: { type: "string", title: "Company name" }
+            }
+        };
+
+        // Run tests
+        const test1Result = checkShouldUseAccordion(personSchema);
+        const test2Result = checkShouldUseAccordion(companySchema);
+
+        // Update UI with results
+        document.getElementById('test1-result').textContent = 
+            test1Result ? '✓ PASS: Accordion will be used' : '✗ FAIL: Accordion will NOT be used';
+        document.getElementById('test1-result').className = test1Result ? 'success' : 'error';
+
+        document.getElementById('test2-result').textContent = 
+            test2Result ? '✗ FAIL: Accordion will be used (should NOT be)' : '✓ PASS: Accordion will NOT be used';
+        document.getElementById('test2-result').className = test2Result ? 'error' : 'success';
+
+        console.log("Test 1 (Person):", test1Result);
+        console.log("Test 2 (Company):", test2Result);
+    </script>
+</body>
+</html>

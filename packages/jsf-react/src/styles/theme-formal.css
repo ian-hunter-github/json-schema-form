@@ -64,6 +64,10 @@
   --focus-ring: var(--purple-700);
   --focus-ring-outer: var(--teal-200);
 
+  /* Accordion specific */
+  --accordion-header-bg: var(--purple-100);
+  --accordion-header-hover: var(--purple-200);
+
   /* Backward compatibility */
   --jsf-primary-color: var(--primary);
   --jsf-secondary-color: var(--text-secondary);

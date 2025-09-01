@@ -130,7 +130,7 @@ a:hover {
   align-items: center;
   gap: 8px;
   padding: 12px 14px;
-  background: var(--surface-variant, #f5f5f5);
+  background: var(--accordion-header-bg, var(--surface-variant, #f5f5f5));
   border: none;
   border-bottom: var(--border-width, 1px) solid var(--border-subtle, #ccc);
   cursor: pointer;
@@ -144,7 +144,7 @@ a:hover {
 }
 
 .jsf-accordion-header:hover {
-  background: var(--surface-variant-hover, #e5e5e5);
+  background: var(--accordion-header-hover, var(--surface-variant-hover, #e5e5e5));
 }
 
 .jsf-accordion-title {

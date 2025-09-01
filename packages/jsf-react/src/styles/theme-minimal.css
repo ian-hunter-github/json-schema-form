@@ -53,6 +53,10 @@
   --focus-ring-outer: var(--gray-300);
   --radius: 0px;
 
+  /* Accordion specific */
+  --accordion-header-bg: var(--gray-200);
+  --accordion-header-hover: var(--gray-300);
+
   /* Backward compatibility */
   --jsf-primary-color: var(--primary);
   --jsf-secondary-color: var(--accent);

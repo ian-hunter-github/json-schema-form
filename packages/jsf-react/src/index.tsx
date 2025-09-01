@@ -447,6 +447,71 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
 
   const fieldError = (path: string) => errors.find((e) => e.path === path);
 
+  // Helper function to determine if accordion should be used
+  const checkShouldUseAccordion = (schema: any): boolean => {
+    // Debug: log when this function is called for Profile
+    if (schema.title === "Profile") {
+      console.log("checkShouldUseAccordion called for Profile field", {
+        hasOneOf: Array.isArray(schema?.oneOf),
+        hasAnyOf: Array.isArray(schema?.anyOf),
+        hasProperties: !!schema?.properties,
+        schemaKeys: Object.keys(schema || {})
+      });
+    }
+    
+    // Check if this is a oneOf/anyOf schema
+    const isOneOf = Array.isArray(schema?.oneOf) || Array.isArray(schema?.anyOf);
+    
+    if (isOneOf) {
+      // For oneOf schemas, check the maximum number of properties in any branch
+      const group = schema.oneOf || schema.anyOf;
+      let maxProperties = 0;
+      
+      for (const branch of group) {
+        if (branch?.properties) {
+          const branchPropertyCount = Object.keys(branch.properties).length;
+          maxProperties = Math.max(maxProperties, branchPropertyCount);
+        }
+      }
+      
+      // Debug logging for Profile field
+      if (schema.title === "Profile") {
+        console.log("Profile field analysis:", {
+          isOneOf: true,
+          maxProperties,
+          branches: group.map((b: any) => ({
+            title: b.title,
+            properties: b.properties ? Object.keys(b.properties) : [],
+            propertyCount: b.properties ? Object.keys(b.properties).length : 0
+          }))
+        });
+      }
+      
+      // Use accordion if any branch has 3 or more properties
+      return maxProperties >= 3;
+    } else if (schema?.properties) {
+      // For regular objects, use accordion if there are 3 or more properties
+      const propertyCount = Object.keys(schema.properties).length;
+      
+      // Debug logging for other objects
+      if (schema.title === "Profile") {
+        console.log("Profile field analysis:", {
+          isOneOf: false,
+          propertyCount,
+          properties: Object.keys(schema.properties)
+        });
+      }
+      
+      return propertyCount >= 3;
+    }
+    
+    if (schema.title === "Profile") {
+      console.log("Profile field analysis: no properties found", schema);
+    }
+    
+    return false;
+  };
+
   // ---------- PURE RENDER FUNCTION (not a component) ----------
   type RFProps = { 
     schema: any; 
@@ -559,20 +624,19 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
         hiddenConstPathsRef.current.add(path ? `${path}.${discProp}` : discProp);
       }
 
-      return (
-        <div
-          className={wrapCls}
-          data-field-name={path}
-          data-field-type={"oneOf"}
-        >
+      // Check if we should use accordion for the oneOf field itself
+      const shouldUseAccordion = checkShouldUseAccordion(s);
+
+      const content = (
+        <>
           <label className={prefix("label")} htmlFor={id}>
             {title}
             {required ? " *" : ""}
           </label>
-            <select
-              id={id}
-              className={[prefix("select"), isDirty ? "is-dirty" : ""].filter(Boolean).join(" ")}
-              value={String(idx)}
+          <select
+            id={id}
+            className={[prefix("select"), isDirty ? "is-dirty" : ""].filter(Boolean).join(" ")}
+            value={String(idx)}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setBranch(
                 path,
@@ -595,8 +659,30 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
               {err.message}
             </div>
           )}
-        </div>
+        </>
       );
+
+      if (shouldUseAccordion) {
+        return (
+          <Accordion 
+            title={title + (required ? " *" : "")}
+            defaultExpanded={true}
+            className={wrapCls}
+          >
+            {content}
+          </Accordion>
+        );
+      } else {
+        return (
+          <div
+            className={wrapCls}
+            data-field-name={path}
+            data-field-type={"oneOf"}
+          >
+            {content}
+          </div>
+        );
+      }
     }
 
     // Enum
@@ -668,12 +754,8 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
         ? Object.keys(objVal).filter((k: string) => !(s.properties || {})[k])
         : [];
 
-      // Check if we should use accordion
-      const shouldUseAccordion = 
-        s.properties && 
-        Object.keys(s.properties).length > 4
-        && // More than 4 fields
-        !(Array.isArray(s?.oneOf) || Array.isArray(s?.anyOf)); // Not part of oneOf
+      // Check if we should use accordion using the helper function
+      const shouldUseAccordion = checkShouldUseAccordion(s);
 
       const content = (
         <>
@@ -736,13 +818,27 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
         </>
       );
 
-      // If this is a oneOf branch, don't render the header - just the content
+      // If this is a oneOf branch, check if accordion should be used but don't render separate header
       if (isOneOfBranch) {
-        return (
-          <div className={wrapCls + " " + prefix("object")}>
-            {content}
-          </div>
-        );
+        const shouldUseAccordion = checkShouldUseAccordion(s);
+        
+        if (shouldUseAccordion) {
+          return (
+            <Accordion 
+              title={title + (required ? " *" : "")}
+              defaultExpanded={true}
+              className={wrapCls}
+            >
+              {content}
+            </Accordion>
+          );
+        } else {
+          return (
+            <div className={wrapCls + " " + prefix("object")}>
+              {content}
+            </div>
+          );
+        }
       }
 
       if (shouldUseAccordion) {

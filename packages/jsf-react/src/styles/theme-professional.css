@@ -52,6 +52,10 @@
   --focus-ring: var(--blue-700);
   --focus-ring-outer: var(--blue-200);
 
+  /* Accordion specific */
+  --accordion-header-bg: var(--blue-100);
+  --accordion-header-hover: var(--blue-200);
+
   /* Backward compatibility */
   --jsf-primary-color: var(--primary);
   --jsf-secondary-color: var(--text-secondary);

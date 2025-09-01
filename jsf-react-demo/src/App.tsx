@@ -3,7 +3,7 @@ import * as JSF from "@ianhunterpersonal/jsf-react";
 import { applyDefaults } from "@ianhunterpersonal/jsf-core";
 import JsonDisplay from "./JsonDisplay";
 
-import '../../packages/jsf-react/src/styles/theme-fun.css';
+import '../../packages/jsf-react/src/styles/theme-professional.css';
 import './App.css';
 
 

@@ -59,6 +59,10 @@
   --focus-ring: var(--focus-ring, var(--primary-500));
   --focus-ring-outer: var(--focus-ring-outer, var(--primary-200));
 
+  /* Accordion specific */
+  --accordion-header-bg: var(--accordion-header-bg, var(--surface-variant));
+  --accordion-header-hover: var(--accordion-header-hover, var(--surface-variant-hover, #e5e5e5));
+
   /* Backward compatibility */
   --jsf-primary-color: var(--jsf-primary-color, var(--primary));
   --jsf-secondary-color: var(--jsf-secondary-color, var(--accent));
