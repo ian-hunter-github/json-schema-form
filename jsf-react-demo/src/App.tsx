@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import * as JSF from "@ianhunterpersonal/jsf-react";
 import { applyDefaults } from "@ianhunterpersonal/jsf-core";
 import JsonDisplay from "./JsonDisplay";
+import { availableThemes, getThemeByName, getDefaultTheme, ThemeInfo, setTheme } from "./themeUtils";
 
-import '../../packages/jsf-react/src/styles/theme-professional.css';
 import './App.css';
 
 
@@ -151,19 +151,55 @@ const demoSchema = {
 export default function App() {
   const schema = useMemo(() => demoSchema, []);
   const [formData, setFormData] = useState<any>({});
+  const [currentTheme, setCurrentTheme] = useState<ThemeInfo>(getDefaultTheme());
 
   // Generate initial data with defaults from schema
   const initialData = useMemo(() => applyDefaults(schema, {}), [schema]);
 
+  // Load theme CSS dynamically
+  useEffect(() => {
+    setTheme(currentTheme.name);
+  }, [currentTheme]);
+
+  // Set initial theme on component mount
+  useEffect(() => {
+    setTheme(getDefaultTheme().name);
+  }, []);
+
   const handleFormChange = (data: any) => {
     setFormData(data);
+  };
+
+  const handleThemeChange = (themeName: string) => {
+    const theme = getThemeByName(themeName);
+    if (theme) {
+      setCurrentTheme(theme);
+    }
   };
 
   return (
     <div className="split-pane">
       <div className="pane left-pane">
         <div className="form-container">
-          <h1 style={{ marginBottom: 8 }}>@ianhunterpersonal/jsf-react — Demo</h1>
+          {/* Toolbar with theme selector */}
+          <div className="toolbar">
+            <h1 style={{ marginBottom: 8, flex: 1 }}>@ianhunterpersonal/jsf-react — Demo</h1>
+            <div className="theme-selector">
+              <label htmlFor="theme-select">Theme: </label>
+              <select
+                id="theme-select"
+                value={currentTheme.name}
+                onChange={(e) => handleThemeChange(e.target.value)}
+                style={{ marginLeft: '8px', padding: '6px 12px', borderRadius: '4px', border: '1px solid #ccc' }}
+              >
+                {availableThemes.map((theme) => (
+                  <option key={theme.name} value={theme.name}>
+                    {theme.displayName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <p style={{ color: "#555", marginTop: 0 }}>
             Top-level & nested <code>oneOf</code>, enum, arrays (incl. array of objects), and <code>additionalProperties</code>.
           </p>
@@ -177,6 +213,7 @@ export default function App() {
             oneOfBranchTitleVisibility="hidden"
             oneOfBranchShowDescription={true}
             onSubmit={(data: any) => {
+              console.log("onSubmit callback called with data:", data);
               alert("Submitted data:\\n" + JSON.stringify(data, null, 2));
             }}
             transformError={(e: any) => {

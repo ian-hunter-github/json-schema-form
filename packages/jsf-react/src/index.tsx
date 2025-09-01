@@ -409,6 +409,8 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
+    console.log("Submit button clicked");
+    
     const ok = engineRef.current.validate() as boolean;
     const st = engineRef.current.getState();
     let errs: ValidationError[] = st.errors;
@@ -426,7 +428,27 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       ts: Date.now(),
     };
 
+    console.log("Form validation result:", { valid: ok, errors: errs.length });
+    console.log("Form data:", st.data);
+    
+    if (errs.length > 0) {
+      console.log("Validation errors:", errs);
+    }
+
     if (!ok) {
+      console.log("Form validation failed, not submitting");
+      
+      // Show validation errors in an alert
+      if (errs.length > 0) {
+        const errorMessages = errs.map((error, index) => 
+          `${index + 1}. ${error.message} (${error.path})`
+        ).join('\n');
+        
+        alert(`Form validation failed. Please fix the following errors:\n\n${errorMessages}`);
+      } else {
+        alert("Form validation failed. Please check your inputs.");
+      }
+      
       if (onValidate) await onValidate(ctx);
       if (onSubmitFailed) await onSubmitFailed(ctx);
       if (errs[0]) {
@@ -436,12 +458,22 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       setTick((x) => x + 1);
       return;
     }
+    
+    console.log("Form validation passed, proceeding with submission");
     if (onValidate) await onValidate(ctx);
     if (onBeforeSubmit) {
       const proceed = await onBeforeSubmit(ctx);
-      if (proceed === false) return;
+      if (proceed === false) {
+        console.log("Submission cancelled by onBeforeSubmit");
+        return;
+      }
     }
-    if (onSubmit) await onSubmit(st.data);
+    if (onSubmit) {
+      console.log("Calling onSubmit callback with data:", st.data);
+      await onSubmit(st.data);
+    } else {
+      console.log("No onSubmit callback provided");
+    }
     if (debug) alert(JSON.stringify(st.data, null, 2));
   };
 
