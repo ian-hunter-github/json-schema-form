@@ -1,4 +1,10 @@
 /* Shared component styles for all themes */
+.jsf-form {
+  padding: 12px;
+  border: var(--border-width, 1px) solid var(--border-subtle, #ccc);
+  border-radius: 8px;
+}
+
 fieldset {
   background: var(--surface, #ffffff);
   border: var(--border-width, 1px) solid var(--border-strong, #000);
@@ -111,6 +117,14 @@ a {
 }
 a:hover {
   text-decoration: underline;
+}
+
+/* Error message styling */
+.jsf-error {
+  color: var(--error, #dc2626);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  text-transform: capitalize;
 }
 
 /* Accordion styles */

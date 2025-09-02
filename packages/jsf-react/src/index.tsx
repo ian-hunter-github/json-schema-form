@@ -200,12 +200,51 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
     branchSchema: null,
   });
 
+  // State for form-level error indication
+  const [hasErrors, setHasErrors] = useState(false);
+
   // Track const paths seen during render for error suppression
   const constPathsRef = useRef<Set<string>>(new Set());
   // Paths of discriminator const fields to hide (e.g. profile.kind)
   const hiddenConstPathsRef = useRef<Set<string>>(new Set());
   const resetConstPaths = () => {
     constPathsRef.current = new Set();
+  };
+
+  // Helper function to check if a field at a given path is a primitive type
+  const isPrimitiveField = (path: string): boolean => {
+    if (!path) return false;
+    
+    const segs = path.split('.');
+    let currentSchema: any = schema;
+    
+    for (const seg of segs) {
+      if (!currentSchema || typeof currentSchema !== 'object') return false;
+      
+      if (currentSchema.properties && currentSchema.properties[seg]) {
+        currentSchema = currentSchema.properties[seg];
+      } else if (currentSchema.items && seg.match(/^\d+$/)) {
+        // Array item - check the items schema
+        currentSchema = currentSchema.items;
+      } else {
+        // Unknown segment or array index without items schema
+        return false;
+      }
+    }
+    
+    // Check if the final schema represents a primitive type
+    if (!currentSchema || typeof currentSchema !== 'object') return false;
+    
+    const type = Array.isArray(currentSchema?.type)
+      ? currentSchema.type.find((x: any) => x !== "null")
+      : currentSchema?.type;
+    
+    // Primitive types: string, number, integer, boolean, or enum
+    return type === 'string' || 
+           type === 'number' || 
+           type === 'integer' || 
+           type === 'boolean' ||
+           Array.isArray(currentSchema?.enum);
   };
 
   useEffect(() => {
@@ -263,6 +302,11 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
           (e) => !(e.keyword === "const" && constPathsRef.current.has(e.path))
         );
       }
+      
+      // Check if any errors are on primitive fields
+      const hasPrimitiveErrors = errs.some(error => isPrimitiveField(error.path));
+      setHasErrors(hasPrimitiveErrors);
+      
       const ctx: ValidateCtx = {
         valid: ok,
         errors: errs,
@@ -421,6 +465,11 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
         (er) => !(er.keyword === "const" && constPathsRef.current.has(er.path))
       );
     }
+    
+    // Check if any errors are on primitive fields
+    const hasPrimitiveErrors = errs.some(error => isPrimitiveField(error.path));
+    setHasErrors(hasPrimitiveErrors);
+    
     const ctx: ValidateCtx = {
       valid: ok,
       errors: errs,
@@ -481,15 +530,6 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
 
   // Helper function to determine if accordion should be used
   const checkShouldUseAccordion = (schema: any): boolean => {
-    // Debug: log when this function is called for Profile
-    if (schema.title === "Profile") {
-      console.log("checkShouldUseAccordion called for Profile field", {
-        hasOneOf: Array.isArray(schema?.oneOf),
-        hasAnyOf: Array.isArray(schema?.anyOf),
-        hasProperties: !!schema?.properties,
-        schemaKeys: Object.keys(schema || {})
-      });
-    }
     
     // Check if this is a oneOf/anyOf schema
     const isOneOf = Array.isArray(schema?.oneOf) || Array.isArray(schema?.anyOf);
@@ -505,40 +545,14 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
           maxProperties = Math.max(maxProperties, branchPropertyCount);
         }
       }
-      
-      // Debug logging for Profile field
-      if (schema.title === "Profile") {
-        console.log("Profile field analysis:", {
-          isOneOf: true,
-          maxProperties,
-          branches: group.map((b: any) => ({
-            title: b.title,
-            properties: b.properties ? Object.keys(b.properties) : [],
-            propertyCount: b.properties ? Object.keys(b.properties).length : 0
-          }))
-        });
-      }
-      
+            
       // Use accordion if any branch has 3 or more properties
       return maxProperties >= 3;
     } else if (schema?.properties) {
       // For regular objects, use accordion if there are 3 or more properties
       const propertyCount = Object.keys(schema.properties).length;
       
-      // Debug logging for other objects
-      if (schema.title === "Profile") {
-        console.log("Profile field analysis:", {
-          isOneOf: false,
-          propertyCount,
-          properties: Object.keys(schema.properties)
-        });
-      }
-      
       return propertyCount >= 3;
-    }
-    
-    if (schema.title === "Profile") {
-      console.log("Profile field analysis: no properties found", schema);
     }
     
     return false;
@@ -1062,7 +1076,7 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
 
   const req: string[] = (schema as any).required || [];
   return (
-    <form className={prefix("form")} noValidate onSubmit={handleSubmit}>
+    <form className={`${prefix("form")} ${hasErrors ? "is-invalid" : ""}`} noValidate onSubmit={handleSubmit}>
       {(schema as any).type === "object" || (schema as any).properties
         ? Object.entries((schema as any).properties || {}).map(([k, s]) => (
             <React.Fragment key={k}>
