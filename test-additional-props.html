@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Additional Properties Test</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 8px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        .input {
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .button-remove {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Additional Properties Table Test</h1>
+    <div style="margin-top: 6px">
+        <strong>Additional properties</strong>
+        <table>
+            <thead>
+                <tr>
+                    <th>KEY</th>
+                    <th>VALUE</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>testKey</td>
+                    <td>
+                        <span style="cursor: pointer; min-height: 20px; display: block" title="Click to edit">
+                            testValue
+                        </span>
+                    </td>
+                    <td>
+                        <button class="button-remove">Remove</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>anotherKey</td>
+                    <td>
+                        <span style="cursor: pointer; min-height: 20px; display: block" title="Click to edit">
+                            <em style="color: #999">empty</em>
+                        </span>
+                    </td>
+                    <td>
+                        <button class="button-remove">Remove</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <input class="input" placeholder="new key">
+            <button>Add</button>
+        </div>
+    </div>
+</body>
+</html>

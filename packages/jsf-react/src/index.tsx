@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createEngine, getByPath, sanitizeId } from "@ianhunterpersonal/jsf-core";
 import { Accordion } from "./Accordion";
+import { FieldRenderer } from "./components/FieldRenderer";
 import type { JSONSchema, ValidationError } from "@ianhunterpersonal/jsf-core";
 
 // Confirmation Dialog Component
@@ -202,6 +203,8 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
 
   // State for form-level error indication
   const [hasErrors, setHasErrors] = useState(false);
+  // Track if form has been submitted to show all errors
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   // Track const paths seen during render for error suppression
   const constPathsRef = useRef<Set<string>>(new Set());
@@ -260,13 +263,35 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
     if (firstMount.current && initialData !== undefined) {
       engineRef.current.reset(initialData);
       firstMount.current = false;
-      // Trigger initial evaluation after resetting with initial data
-      if (onChange) {
-        // Use a small delay to ensure the reset is complete
-        setTimeout(() => {
-          runPostChange();
-        }, 0);
-      }
+      // Run validation immediately on form load without debouncing
+      const runInitialValidation = async () => {
+        const ok = engineRef.current.validate() as boolean;
+        const st = engineRef.current.getState();
+        let errs: ValidationError[] = st.errors;
+        if (transformError)
+          errs = errs.map(transformError).filter(Boolean) as ValidationError[];
+        if (constErrorStrategy === "suppress-when-managed") {
+          errs = errs.filter(
+            (e) => !(e.keyword === "const" && constPathsRef.current.has(e.path))
+          );
+        }
+        
+        // Check if any errors are on primitive fields
+        const hasPrimitiveErrors = errs.some(error => isPrimitiveField(error.path));
+        setHasErrors(hasPrimitiveErrors);
+        
+        const ctx: ValidateCtx = {
+          valid: ok,
+          errors: errs,
+          data: st.data,
+          ts: Date.now(),
+        };
+        if (onChange) onChange(st.data);
+        if (onValidate) await onValidate(ctx);
+        setTick((x) => x + 1);
+      };
+      
+      runInitialValidation();
     }
   }, [initialData]);
 
@@ -558,476 +583,6 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
     return false;
   };
 
-  // ---------- PURE RENDER FUNCTION (not a component) ----------
-  type RFProps = { 
-    schema: any; 
-    path: string; 
-    required: boolean;
-    isOneOfBranch?: boolean; // New prop to indicate if this is a oneOf branch
-  };
-  const renderField = ({
-    schema: s,
-    path,
-    required,
-    isOneOfBranch = false,
-  }: RFProps): JSX.Element | null => {
-    const t = Array.isArray(s?.type)
-      ? s.type.find((x: any) => x !== "null")
-      : s?.type;
-    const id = sanitizeId(path);
-    const title =
-      (s?.title ?? (path ? path.split(".").slice(-1)[0] : "field")) || "field";
-    const err = fieldError(path);
-    const isDirty = state.dirty.has(path);
-    const wrapCls = [prefix("field"), err ? "is-error" : "", isDirty ? "is-dirty" : ""]
-      .filter(Boolean)
-      .join(" ");
-    const inputCls = [prefix("input"), isDirty ? "is-dirty" : ""]
-      .filter(Boolean)
-      .join(" ");
-
-    // Handle const fields
-    if (
-      s &&
-      typeof s === "object" &&
-      Object.prototype.hasOwnProperty.call(s, "const")
-    ) {
-      // Hide discriminator consts that are registered for this path
-      if (hiddenConstPathsRef.current.has(path)) {
-        if (autoConstTagging) (engineRef.current as any).setValue(path, (s as any).const);
-        return null;
-      }
-      constPathsRef.current.add(path);
-      if (autoConstTagging) engineRef.current.setValue(path, s.const);
-      const display =
-        typeof s.const === "string" ? s.const : JSON.stringify(s.const);
-      if (constVisibility === "hidden") return null;
-      if (constVisibility === "readonly") {
-        return (
-          <div
-            className={wrapCls}
-            data-field-name={path}
-            data-field-type={"const"}
-          >
-            <label className={prefix("label")} htmlFor={id}>
-              {title}
-              {required ? " *" : ""}
-            </label>
-            <div
-              className={prefix("input")}
-              id={id}
-              aria-readonly="true"
-              style={{ opacity: 0.8 }}
-            >
-              {display}
-            </div>
-            {err && (
-              <div className={prefix("error")} id={id + "-err"}>
-                {err.message}
-              </div>
-            )}
-          </div>
-        );
-      }
-      // visible: disabled input
-      return (
-        <div
-          className={wrapCls}
-          data-field-name={path}
-          data-field-type={"const"}
-        >
-          <label className={prefix("label")} htmlFor={id}>
-            {title}
-            {required ? " *" : ""}
-          </label>
-          <input
-            className={prefix("input")}
-            id={id}
-            value={display}
-            disabled
-            aria-readonly="true"
-          />
-          {err && (
-            <div className={prefix("error")} id={id + "-err"}>
-              {err.message}
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    // oneOf / anyOf
-    if (Array.isArray(s?.oneOf) || Array.isArray(s?.anyOf)) {
-      const group = s.oneOf || s.anyOf;
-      const idx = state.activeOneOf[path] ?? 0;
-
-      // Discriminator property name on the selector schema (if any)
-      const discProp = typeof (s as any)?.discriminator?.propertyName === "string"
-        ? (s as any).discriminator.propertyName
-        : null;
-      if (discProp) {
-        // e.g. path="profile" + ".kind" → hide that const field in the branch UI
-        hiddenConstPathsRef.current.add(path ? `${path}.${discProp}` : discProp);
-      }
-
-      // Check if we should use accordion for the oneOf field itself
-      const shouldUseAccordion = checkShouldUseAccordion(s);
-
-      const content = (
-        <>
-          <label className={prefix("label")} htmlFor={id}>
-            {title}
-            {required ? " *" : ""}
-          </label>
-          <select
-            id={id}
-            className={[prefix("select"), isDirty ? "is-dirty" : ""].filter(Boolean).join(" ")}
-            value={String(idx)}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              setBranch(
-                path,
-                Number(e.target.value),
-                group[Number(e.target.value)]
-              )
-            }
-          >
-            {group.map((g: any, i: number) => (
-              <option key={i} value={String(i)}>
-                {g.title ?? `${title} (${i + 1})`}
-              </option>
-            ))}
-          </select>
-          <div className={prefix("object")}>
-            {renderField({ schema: group[idx], path, required, isOneOfBranch: true })}
-          </div>
-          {err && (
-            <div className={prefix("error")} id={id + "-err"}>
-              {err.message}
-            </div>
-          )}
-        </>
-      );
-
-      if (shouldUseAccordion) {
-        return (
-          <Accordion 
-            title={title + (required ? " *" : "")}
-            defaultExpanded={true}
-            className={wrapCls}
-          >
-            {content}
-          </Accordion>
-        );
-      } else {
-        return (
-          <div
-            className={wrapCls}
-            data-field-name={path}
-            data-field-type={"oneOf"}
-          >
-            {content}
-          </div>
-        );
-      }
-    }
-
-    // Enum
-    if (Array.isArray(s?.enum)) {
-      const value = getByPath(state.data, path);
-      const strValue =
-        typeof value === "string"
-          ? value
-          : value == null
-          ? ""
-          : JSON.stringify(value);
-      const labels: string[] = (
-        s["x-enumNames"] ||
-        s["x-enum-labels"] ||
-        s.enum
-      ).map((x: any) => String(x));
-      return (
-        <div
-          className={wrapCls}
-          data-field-name={path}
-          data-field-type={"enum"}
-        >
-          <label className={prefix("label")} htmlFor={id}>
-            {title}
-            {required ? " *" : ""}
-          </label>
-            <select
-              id={id}
-              className={[prefix("select"), isDirty ? "is-dirty" : ""].filter(Boolean).join(" ")}
-              value={strValue}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              let v: any = e.target.value;
-              if (s.enum.some((x: any) => typeof x !== "string")) {
-                try {
-                  v = JSON.parse(v);
-                } catch {}
-              }
-              applyChange(path, v);
-            }}
-          >
-            <option value="">-- select --</option>
-            {s.enum.map((v: any, i: number) => (
-              <option
-                key={i}
-                value={typeof v === "string" ? v : JSON.stringify(v)}
-              >
-                {labels[i]}
-              </option>
-            ))}
-          </select>
-          {err && (
-            <div className={prefix("error")} id={id + "-err"}>
-              {err.message}
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    // Object (+ additionalProperties)
-    if (t === "object" || s.properties) {
-      const req: string[] = s.required || [];
-      const objVal = getByPath(state.data, path) || {};
-      const additionalSchema =
-        s.additionalProperties && typeof s.additionalProperties === "object"
-          ? s.additionalProperties
-          : null;
-      const extraKeys = additionalSchema
-        ? Object.keys(objVal).filter((k: string) => !(s.properties || {})[k])
-        : [];
-
-      // Check if we should use accordion using the helper function
-      const shouldUseAccordion = checkShouldUseAccordion(s);
-
-      const content = (
-        <>
-          {Object.entries(s.properties || {}).map(([k, sub]) => (
-            <React.Fragment key={k}>
-              {renderField({
-                schema: sub as any,
-                path: path ? `${path}.${k}` : k,
-                required: req.includes(k),
-              })}
-            </React.Fragment>
-          ))}
-
-          {additionalSchema && (
-            <div style={{ marginTop: 6 }}>
-              <strong>Additional properties</strong>
-              {extraKeys.map((k) => (
-                <div
-                  key={k}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr auto",
-                    gap: 8,
-                    marginTop: 6,
-                  }}
-                >
-                  {renderField({
-                    schema: additionalSchema,
-                    path: path ? `${path}.${k}` : k,
-                    required: false,
-                  })}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = { ...engineRef.current.getState().data };
-                      const segs = path ? path.split(".") : [];
-                      let cur: any = next;
-                      for (const seg of segs) {
-                        cur[seg] = cur[seg] ?? {};
-                        cur = cur[seg];
-                      }
-                      delete cur[k];
-                      engineRef.current.reset(next);
-                      setTick((x) => x + 1);
-                      runPostChange();
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              {renderAddKeyRow(path)}
-            </div>
-          )}
-          {err && (
-            <div className={prefix("error")} id={id + "-err"}>
-              {err.message}
-            </div>
-          )}
-        </>
-      );
-
-      // If this is a oneOf branch, check if accordion should be used but don't render separate header
-      if (isOneOfBranch) {
-        const shouldUseAccordion = checkShouldUseAccordion(s);
-        
-        if (shouldUseAccordion) {
-          return (
-            <Accordion 
-              title={title + (required ? " *" : "")}
-              defaultExpanded={true}
-              className={wrapCls}
-            >
-              {content}
-            </Accordion>
-          );
-        } else {
-          return (
-            <div className={wrapCls + " " + prefix("object")}>
-              {content}
-            </div>
-          );
-        }
-      }
-
-      if (shouldUseAccordion) {
-        return (
-          <Accordion 
-            title={title + (required ? " *" : "")}
-            defaultExpanded={true}
-            className={wrapCls}
-          >
-            {content}
-          </Accordion>
-        );
-      } else {
-        return (
-          <fieldset
-            className={wrapCls + " " + prefix("object")}
-            data-field-name={path}
-            data-field-type={"object"}
-          >
-            <legend className={prefix("label")}>
-              {title}
-              {required ? " *" : ""}
-            </legend>
-            {content}
-          </fieldset>
-        );
-      }
-    }
-
-    // Array
-    if (t === "array" || s.items) {
-      const items = Array.isArray(getByPath(state.data, path))
-        ? getByPath(state.data, path)
-        : [];
-      return (
-        <div
-          className={wrapCls}
-          data-field-name={path}
-          data-field-type={"array"}
-        >
-          <label className={prefix("label")} htmlFor={id}>
-            {title}
-            {required ? " *" : ""}
-          </label>
-          <div>
-            {items.map((_v: any, i: number) => (
-              <div key={i} style={{ marginBottom: 8 }}>
-                {renderField({
-                  schema: s.items,
-                  path: `${path}.${i}`,
-                  required: false,
-                })}
-                <button type="button" onClick={() => removeItem(path, i)}>
-                  Remove
-                </button>
-              </div>
-            ))}
-            <button type="button" onClick={() => addItem(path)}>
-              Add
-            </button>
-          </div>
-          {err && (
-            <div className={prefix("error")} id={id + "-err"}>
-              {err.message}
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    // Primitive
-    const format = s.format;
-    let inputType: React.HTMLInputTypeAttribute = "text";
-    if (format === "date") inputType = "date";
-    else if (format === "time") inputType = "time";
-    else if (format === "date-time") inputType = "datetime-local";
-    else if (format === "email") inputType = "email";
-    else if (format === "uri") inputType = "url";
-    else if (format === "password") inputType = "password";
-    else if (t === "number" || t === "integer") inputType = "number";
-    else if (t === "boolean") inputType = "checkbox";
-
-    const value = getByPath(state.data, path);
-    const commonProps = {
-      id,
-      className: prefix("input"),
-      "aria-invalid": !!err || undefined,
-      "aria-describedby": err ? id + "-err" : undefined,
-    } as const;
-
-    return (
-      <div
-        className={wrapCls}
-        data-field-name={path}
-        data-field-type={String(t ?? "unknown")}
-      >
-        <label className={prefix("label")} htmlFor={id}>
-          {title}
-          {required ? " *" : ""}
-        </label>
-        {format === "textarea" ? (
-          <textarea
-            {...commonProps}
-            className={inputCls}
-            value={value ?? ""}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-              applyChange(path, e.currentTarget.value);
-            }}
-            rows={4}
-          />
-        ) : inputType === "checkbox" ? (
-            <input
-              type="checkbox"
-              {...commonProps}
-              className={inputCls}
-              checked={!!value}
-            onChange={(e) => applyChange(path, e.currentTarget.checked)}
-          />
-        ) : (
-          <input
-            type={inputType}
-            {...commonProps}
-            className={inputCls}
-            value={value ?? ""}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const raw = e.currentTarget.value;
-              let v: any = raw;
-              if (t === "number" || t === "integer")
-                v = raw === "" ? undefined : Number(raw);
-              applyChange(path, v);
-            }}
-          />
-        )}
-        {err && (
-          <div className={prefix("error")} id={id + "-err"}>
-            {err.message}
-          </div>
-        )}
-      </div>
-    );
-  };
-  // ---------- /PURE RENDER FUNCTION ----------
-
   // Inline row for additionalProperties key add
   const renderAddKeyRow = (path: string) => {
     const [key, setKey] = useState(""); // NOTE: local hook in render helper is not allowed; replace with controlled below
@@ -1080,14 +635,62 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
       {(schema as any).type === "object" || (schema as any).properties
         ? Object.entries((schema as any).properties || {}).map(([k, s]) => (
             <React.Fragment key={k}>
-              {renderField({
-                schema: s as any,
-                path: k,
-                required: req.includes(k),
-              })}
+              <FieldRenderer
+                schema={s}
+                path={k}
+                required={req.includes(k)}
+                value={getByPath(state.data, k)}
+                error={fieldError(k)}
+                isDirty={state.dirty.has(k)}
+                hasSubmitted={hasSubmitted}
+                classNamePrefix={classNamePrefix}
+                onChange={applyChange}
+                onAddItem={addItem}
+                onRemoveItem={removeItem}
+                onSetBranch={setBranch}
+                getSchemaAtPath={getSchemaAtPath}
+                applyConstTagsForBranch={applyConstTagsForBranch}
+                checkShouldUseAccordion={checkShouldUseAccordion}
+                constVisibility={constVisibility}
+                autoConstTagging={autoConstTagging}
+                constErrorStrategy={constErrorStrategy}
+                hiddenConstPathsRef={hiddenConstPathsRef}
+                constPathsRef={constPathsRef}
+                engineRef={engineRef}
+                setTick={setTick}
+                runPostChange={runPostChange}
+                fieldError={fieldError}
+              />
             </React.Fragment>
           ))
-        : renderField({ schema: schema as any, path: "", required: false })}
+        : (
+            <FieldRenderer
+              schema={schema}
+              path=""
+              required={false}
+              value={state.data}
+              error={fieldError("")}
+              isDirty={false}
+              hasSubmitted={hasSubmitted}
+              classNamePrefix={classNamePrefix}
+              onChange={applyChange}
+              onAddItem={addItem}
+              onRemoveItem={removeItem}
+              onSetBranch={setBranch}
+              getSchemaAtPath={getSchemaAtPath}
+              applyConstTagsForBranch={applyConstTagsForBranch}
+              checkShouldUseAccordion={checkShouldUseAccordion}
+              constVisibility={constVisibility}
+              autoConstTagging={autoConstTagging}
+              constErrorStrategy={constErrorStrategy}
+              hiddenConstPathsRef={hiddenConstPathsRef}
+              constPathsRef={constPathsRef}
+              engineRef={engineRef}
+              setTick={setTick}
+              runPostChange={runPostChange}
+              fieldError={fieldError}
+            />
+          )}
 
       <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
         <button type="submit">Submit</button>
@@ -1137,3 +740,4 @@ export const JsonSchemaForm: React.FC<JsonSchemaFormProps> = ({
 };
 
 export default JsonSchemaForm;
+export { FieldRenderer };

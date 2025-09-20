@@ -154,7 +154,16 @@ export default function App() {
   const [currentTheme, setCurrentTheme] = useState<ThemeInfo>(getDefaultTheme());
 
   // Generate initial data with defaults from schema
-  const initialData = useMemo(() => applyDefaults(schema, {}), [schema]);
+  const initialData = useMemo(() => {
+    const data = applyDefaults(schema, {});
+    // Add some test metadata to see the table
+    data.metadata = {
+      testKey: "testValue",
+      anotherKey: "",
+      complexKey: JSON.stringify({ nested: "object" })
+    };
+    return data;
+  }, [schema]);
 
   // Load theme CSS dynamically
   useEffect(() => {

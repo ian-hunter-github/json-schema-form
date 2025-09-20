@@ -127,6 +127,16 @@ a:hover {
   text-transform: capitalize;
 }
 
+/* Required field indicator styling */
+.jsf-label:has(> .jsf-required-asterisk) {
+  position: relative;
+}
+
+.jsf-required-asterisk {
+  color: var(--error, #dc2626);
+  font-weight: bold;
+}
+
 /* Accordion styles */
 .jsf-accordion {
   display: block; /* or display: flex; width: 100%; */
