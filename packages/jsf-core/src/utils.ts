@@ -100,4 +100,70 @@ export function hasDataInContainer(obj: any, path: string): boolean {
   });
 }
 
-export { deepEqual };
+// Apply all direct property const tags for a chosen branch schema at a given path.
+export function applyConstTagsForBranch(
+  engine: any,
+  path: string,
+  branchSchema: any,
+  enable: boolean
+) {
+  if (!enable) return;
+  const props = branchSchema?.properties || {};
+  for (const k of Object.keys(props)) {
+    const sub: any = (props as any)[k];
+    if (
+      sub &&
+      typeof sub === "object" &&
+      Object.prototype.hasOwnProperty.call(sub, "const")
+    ) {
+      const p = path ? `${path}.${k}` : k;
+      engine.setValue(p, sub.const);
+    }
+  }
+}
+
+// Walk schema via dot path through properties (best-effort for oneOf containers)
+export function getSchemaAtPath(root: any, path: string): any {
+  if (!path) return root;
+  const segs = path.split(".");
+  let cur: any = root;
+  for (const seg of segs) {
+    if (!cur || typeof cur !== "object") return undefined;
+    if (cur.properties && cur.properties[seg]) {
+      cur = cur.properties[seg];
+    } else {
+      // unknown segment -> stop
+      return cur;
+    }
+  }
+  return cur;
+}
+
+// Helper function to determine if accordion should be used
+export function checkShouldUseAccordion(schema: any): boolean {
+  // Check if this is a oneOf/anyOf schema
+  const isOneOf = Array.isArray(schema?.oneOf) || Array.isArray(schema?.anyOf);
+  
+  if (isOneOf) {
+    // For oneOf schemas, check the maximum number of properties in any branch
+    const group = schema.oneOf || schema.anyOf;
+    let maxProperties = 0;
+    
+    for (const branch of group) {
+      if (branch?.properties) {
+        const branchPropertyCount = Object.keys(branch.properties).length;
+        maxProperties = Math.max(maxProperties, branchPropertyCount);
+      }
+    }
+          
+    // Use accordion if any branch has 3 or more properties
+    return maxProperties >= 3;
+  } else if (schema?.properties) {
+    // For regular objects, use accordion if there are 3 or more properties
+    const propertyCount = Object.keys(schema.properties).length;
+    
+    return propertyCount >= 3;
+  }
+  
+  return false;
+}
